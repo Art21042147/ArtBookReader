@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../axios'
 
-export default function Login() {
+export default function Register() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -12,16 +12,19 @@ export default function Login() {
     e.preventDefault()
 
     try {
+      await api.post('register/', { username, password })
+
       await api.post('login/', { username, password })
+
       navigate('/')
     } catch (err) {
-      setError('Incorrect login or password')
+      setError(err.response?.data?.username?.[0] || 'Registration error')
     }
   }
 
   return (
     <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">🔐 Log In</h1>
+      <h1 className="text-2xl font-bold mb-4">➕ Add User</h1>
       {error && <p className="text-red-600 mb-2">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -42,9 +45,9 @@ export default function Login() {
         />
         <button
           type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded"
+          className="w-full bg-green-500 hover:bg-green-600 text-white p-2 rounded"
         >
-          Log In
+          Add
         </button>
       </form>
     </div>
