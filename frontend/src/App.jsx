@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
 import ProtectedRoute from './ProtectedRoute'
+import Reader from './pages/Reader'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Profile />
         </ProtectedRoute>
       } />
+      <Route path="/reader" element={<Reader />} />
     </Routes>
   )
 }
