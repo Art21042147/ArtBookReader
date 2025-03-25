@@ -4,6 +4,7 @@ export default function Reader() {
   const [showPanel, setShowPanel] = useState(false)
   const [bookText, setBookText] = useState('')
   const [showPosition, setShowPosition] = useState(false)
+  const [pageInfo, setPageInfo] = useState({ current: 1, total: 1, percent: 0 })
   const fileInputRef = useRef()
   const scrollRef = useRef()
 
@@ -31,18 +32,21 @@ export default function Reader() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (scrollRef.current) {
-        localStorage.setItem('scrollPosition', scrollRef.current.scrollTop)
-      }
+      if (!scrollRef.current) return
+      const el = scrollRef.current
+      const scrollTop = el.scrollTop
+      const scrollHeight = el.scrollHeight - el.clientHeight
+      const percent = scrollHeight > 0 ? Math.round((scrollTop / scrollHeight) * 100) : 0
+      const totalPages = Math.max(Math.ceil(scrollHeight / el.clientHeight), 1)
+      const currentPage = Math.min(Math.max(Math.round(scrollTop / el.clientHeight) + 1, 1), totalPages)
+      setPageInfo({ current: currentPage, total: totalPages, percent })
+      localStorage.setItem('scrollPosition', scrollTop)
     }
+
     const el = scrollRef.current
-    if (el) {
-      el.addEventListener('scroll', handleScroll)
-    }
+    if (el) el.addEventListener('scroll', handleScroll)
     return () => {
-      if (el) {
-        el.removeEventListener('scroll', handleScroll)
-      }
+      if (el) el.removeEventListener('scroll', handleScroll)
     }
   }, [])
 
@@ -98,11 +102,11 @@ export default function Reader() {
       >
         {bookText ? (
           <>
+            <div className="fixed top-4 right-6 text-base text-gray-400 z-40">
+              <p>Page {pageInfo.current} of {pageInfo.total} ({pageInfo.percent}%)</p>
+            </div>
             <div className="whitespace-pre-line max-w-5xl text-left">
               {bookText}
-            </div>
-            <div className="mt-16 text-sm text-gray-400">
-              <p>Page 1 of 1 (0%)</p>
             </div>
           </>
         ) : (
