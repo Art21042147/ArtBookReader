@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 export default function Reader() {
   const [showPanel, setShowPanel] = useState(false)
-  const [bookText, setBookText] = useState('')           // ← book text
+  const [bookText, setBookText] = useState('')
+  const [showPosition, setShowPosition] = useState(false)
   const fileInputRef = useRef()
+  const scrollRef = useRef()
 
   const togglePanel = () => setShowPanel(!showPanel)
 
@@ -13,6 +15,13 @@ export default function Reader() {
       const reader = new FileReader()
       reader.onload = () => {
         setBookText(reader.result)
+        setShowPosition(true)
+        setTimeout(() => {
+          const saved = localStorage.getItem('scrollPosition')
+          if (saved && scrollRef.current) {
+            scrollRef.current.scrollTop = parseInt(saved, 10)
+          }
+        }, 100)
       }
       reader.readAsText(file, 'UTF-8')
     } else {
@@ -20,28 +29,45 @@ export default function Reader() {
     }
   }
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollRef.current) {
+        localStorage.setItem('scrollPosition', scrollRef.current.scrollTop)
+      }
+    }
+    const el = scrollRef.current
+    if (el) {
+      el.addEventListener('scroll', handleScroll)
+    }
+    return () => {
+      if (el) {
+        el.removeEventListener('scroll', handleScroll)
+      }
+    }
+  }, [])
+
   return (
     <div
-      className="flex h-screen bg-black text-white relative overflow-hidden"
+      className="flex h-screen bg-gray-950 text-white relative overflow-hidden"
       onClick={togglePanel}
     >
       {/* Toolbar */}
       <div
-        className={`fixed top-0 left-0 h-full w-72 bg-gray-900 text-white p-4 z-50 transform transition-transform duration-300 ${
+        className={`fixed top-0 left-0 h-full w-80 bg-indigo-950 text-white p-6 text-lg z-50 transform transition-transform duration-300 ${
           showPanel ? 'translate-x-0' : '-translate-x-full'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-bold mb-4">👤 Username</h2>
-        <div className="mb-4">
+        <h2 className="text-2xl font-bold mb-6">👤 Username</h2>
+        <div className="mb-6">
           <img
             src="/placeholder-book.jpg"
             alt="Cover"
             className="w-full h-auto rounded shadow"
           />
-          <p className="mt-2 font-semibold">📖 Book Title</p>
+          <p className="mt-4 font-semibold text-lg">📖 Book Title</p>
         </div>
-        <ul className="space-y-2">
+        <ul className="space-y-4">
           <li className="hover:text-blue-400 cursor-pointer">📑 Content</li>
           <li className="hover:text-blue-400 cursor-pointer">🔍 Find</li>
           <li className="hover:text-blue-400 cursor-pointer">📌 Bookmarks</li>
@@ -66,17 +92,22 @@ export default function Reader() {
       </div>
 
       {/* Main reading area */}
-      <div className="flex-1 flex flex-col items-center justify-center px-8 text-lg leading-relaxed text-center">
-        <div className="max-w-4xl whitespace-pre-line text-left">
-          {bookText
-            ? bookText
-            : 'Upload .txt file'}
-        </div>
-
-        {/* Bottom navigation bar */}
-        <div className="absolute bottom-4 text-sm text-gray-400">
-          <p>Page 1 of 1 (0%)</p>
-        </div>
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto flex flex-col items-center px-8 text-lg leading-relaxed text-center py-24"
+      >
+        {bookText ? (
+          <>
+            <div className="whitespace-pre-line max-w-5xl text-left">
+              {bookText}
+            </div>
+            <div className="mt-16 text-sm text-gray-400">
+              <p>Page 1 of 1 (0%)</p>
+            </div>
+          </>
+        ) : (
+          <h1 className="text-8xl font-bold opacity-50">ArtBookReader</h1>
+        )}
       </div>
     </div>
   )
