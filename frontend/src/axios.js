@@ -16,9 +16,13 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const csrfToken = getCookie('csrftoken')
 
-  // Add only for CSRF sensitive methods
+  // Only for methods with a request body
   const csrfMethods = ['post', 'put', 'patch', 'delete']
-  if (csrfMethods.includes(config.method)) {
+
+  if (
+    csrfMethods.includes(config.method.toLowerCase()) &&
+    config.headers['Content-Type'] !== 'multipart/form-data'
+  ) {
     config.headers['X-CSRFToken'] = csrfToken
   }
 

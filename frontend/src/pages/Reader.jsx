@@ -109,7 +109,8 @@ const handleFileChange = async (e) => {
         <button
           onClick={async () => {
             await api.post('logout/')
-            setUser(null)
+            document.cookie = 'sessionid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+            document.cookie = 'csrftoken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
             window.location.href = '/'
           }}
           className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded"
