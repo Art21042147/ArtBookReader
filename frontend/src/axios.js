@@ -10,9 +10,6 @@ function getCookie(name) {
 const api = axios.create({
   baseURL: '/api/',
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 })
 
 // Add the CSRF token to all necessary requests
@@ -27,5 +24,13 @@ api.interceptors.request.use((config) => {
 
   return config
 })
+
+// Books API
+export const uploadBook = async (file) => {
+  const formData = new FormData()
+  formData.append('title', file.name.replace(/\.[^/.]+$/, ''))
+  formData.append('file', file)
+  return api.post('/books/', formData)
+}
 
 export default api

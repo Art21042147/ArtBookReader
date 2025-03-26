@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import api from '../axios'
+import { uploadBook } from '../axios'
 
 export default function Reader() {
   const [showPanel, setShowPanel] = useState(false)
@@ -7,18 +8,25 @@ export default function Reader() {
   const [showPosition, setShowPosition] = useState(false)
   const [pageInfo, setPageInfo] = useState({ current: 1, total: 1, percent: 0 })
   const [user, setUser] = useState(null)
+  const [book, setBook] = useState(null)
   const fileInputRef = useRef()
   const scrollRef = useRef()
 
   const togglePanel = () => setShowPanel(!showPanel)
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0]
-    if (file && file.type === 'text/plain') {
+const handleFileChange = async (e) => {
+  const file = e.target.files[0]
+  if (file && file.type === 'text/plain') {
+    try {
       const reader = new FileReader()
-      reader.onload = () => {
-        setBookText(reader.result)
+      reader.onload = async () => {
+        const bookText = reader.result
+        setBookText(bookText)
         setShowPosition(true)
+
+        const response = await uploadBook(file)
+        setBook(response.data)
+
         setTimeout(() => {
           const saved = localStorage.getItem('scrollPosition')
           if (saved && scrollRef.current) {
@@ -27,10 +35,13 @@ export default function Reader() {
         }, 100)
       }
       reader.readAsText(file, 'UTF-8')
-    } else {
-      alert('Please select .txt file')
+    } catch (err) {
+      alert('Upload failed')
     }
+  } else {
+    alert('Please select a .txt file')
   }
+}
 
   useEffect(() => {
     api.get('/profile/')
@@ -79,7 +90,7 @@ export default function Reader() {
             alt="Cover"
             className="w-full h-auto rounded shadow"
           />
-          <p className="mt-4 font-semibold text-lg">📖 Book Title</p>
+          <p className="mt-4 font-semibold text-lg">📖 {book?.title || 'No book'}</p>
         </div>
         <ul className="space-y-4">
           <li className="hover:text-blue-400 cursor-pointer">📑 Content</li>

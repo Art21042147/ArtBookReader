@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status, viewsets, permissions
 from django.contrib.auth import authenticate, login, logout
-from .serializers import UserSerializer
+from .models import Book, ReadingPosition, Bookmark
+from .serializers import (UserSerializer,
+                          BookSerializer, ReadingPositionSerializer, BookmarkSerializer)
 
 
 def index(request):
@@ -44,3 +46,36 @@ class LogoutView(APIView):
     def post(self, request):
         logout(request)
         return Response({"message": "Logged out"})
+
+
+class BookViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = BookSerializer
+
+    def get_queryset(self):
+        return Book.objects.filter(user=self.request.user).order_by('-uploaded_at')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class ReadingPositionViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ReadingPositionSerializer
+
+    def get_queryset(self):
+        return ReadingPosition.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class BookmarkViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = BookmarkSerializer
+
+    def get_queryset(self):
+        return Bookmark.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

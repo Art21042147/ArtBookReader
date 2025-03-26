@@ -19,6 +19,7 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = ["id", "user", "title", "file", "uploaded_at"]
+        read_only_fields = ["user"]
 
 
 class ReadingPositionSerializer(serializers.ModelSerializer):
