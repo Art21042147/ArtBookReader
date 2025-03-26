@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
+import api from '../axios'
 
 export default function Reader() {
   const [showPanel, setShowPanel] = useState(false)
   const [bookText, setBookText] = useState('')
   const [showPosition, setShowPosition] = useState(false)
   const [pageInfo, setPageInfo] = useState({ current: 1, total: 1, percent: 0 })
+  const [user, setUser] = useState(null)
   const fileInputRef = useRef()
   const scrollRef = useRef()
 
@@ -29,6 +31,12 @@ export default function Reader() {
       alert('Please select .txt file')
     }
   }
+
+  useEffect(() => {
+    api.get('/profile/')
+      .then(res => setUser(res.data))
+      .catch(() => setUser(null))
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,7 +70,9 @@ export default function Reader() {
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-2xl font-bold mb-6">👤 Username</h2>
+        <h2 className="text-2xl font-bold mb-6">
+          👤 {user?.username || '...'}
+        </h2>
         <div className="mb-6">
           <img
             src="/placeholder-book.jpg"
@@ -83,6 +93,18 @@ export default function Reader() {
             ➕ Add Book
           </li>
         </ul>
+
+        {/* Log Out bottom */}
+        <button
+          onClick={async () => {
+            await api.post('logout/')
+            setUser(null)
+            window.location.href = '/'
+          }}
+          className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded"
+        >
+          Log Out
+        </button>
 
         {/* Hidden input for file selection */}
         <div style={{ display: 'none' }}>

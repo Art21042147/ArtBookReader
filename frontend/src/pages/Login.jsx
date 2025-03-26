@@ -13,40 +13,43 @@ export default function Login() {
 
     try {
       await api.post('login/', { username, password })
-      navigate('/')
+      navigate('/reader')
     } catch (err) {
       setError('Incorrect login or password')
     }
   }
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">🔐 Log In</h1>
-      {error && <p className="text-red-600 mb-2">{error}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="User Name"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded"
-        >
-          Log In
-        </button>
-      </form>
+    <div className="h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 text-center">
+      <h1 className="text-8xl font-bold opacity-50 mb-12">ArtBookReader</h1>
+      <div className="w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-4">🔐 Log In</h2>
+        {error && <p className="text-red-600 mb-2">{error}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            placeholder="User Name"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full p-2 border rounded bg-gray-800 border-gray-700 placeholder-gray-400"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 border rounded bg-gray-800 border-gray-700 placeholder-gray-400"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded"
+          >
+            Log In
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

@@ -21,23 +21,24 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">🏠 Home</h1>
-      {loading && <p>Loading...</p>}
-      {!loading && user && (
-        <p className="text-green-600">👋 Wellcome, {user.username}!</p>
-      )}
+    <div className="h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 text-center">
+      <h1 className="text-8xl font-bold opacity-50 mb-12">ArtBookReader</h1>
       {!loading && !user && (
-        <p className="text-red-600">You are not logged in</p>
+        <div className="flex gap-6">
+          <button
+            onClick={() => navigate('/login')}
+            className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded"
+          >
+            Log In
+          </button>
+          <button
+            onClick={() => navigate('/register')}
+            className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded"
+          >
+            Add User
+          </button>
+        </div>
       )}
-      {user && (
-       <button
-         onClick={handleLogout}
-         className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-       >
-         Log Out
-       </button>
-       )}
     </div>
   )
 }
