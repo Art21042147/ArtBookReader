@@ -37,4 +37,6 @@ export const uploadBook = async (file) => {
   return api.post('/books/', formData)
 }
 
+export const getMyBooks = () => api.get('/books/')
+
 export default api
