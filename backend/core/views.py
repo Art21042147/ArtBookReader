@@ -1,9 +1,9 @@
-from pathlib import Path
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets, permissions, serializers
 from django.contrib.auth import authenticate, login, logout
+from .utils.extractors import extract_title
 from .models import Book, ReadingPosition, Bookmark
 from .serializers import (UserSerializer,
                           BookSerializer, ReadingPositionSerializer, BookmarkSerializer)
@@ -28,7 +28,7 @@ class LoginView(APIView):
         password = request.data.get("password")
         user = authenticate(username=username, password=password)
         if user is not None:
-            login(request, user)  # создаёт сессию
+            login(request, user)
             return Response({"message": "Login successful"})
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -58,21 +58,13 @@ class BookViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         file = self.request.FILES.get("file")
-        filename = Path(file.name).name
+        title = extract_title(file)
+        file.seek(0)
 
-        # Проверка на дубликаты по имени файла
-        existing_books = Book.objects.filter(user=self.request.user)
-        for book in existing_books:
-            existing_name = Path(book.file.name).name
-            if existing_name == filename:
-                raise serializers.ValidationError("This book is already uploaded.")
+        if Book.objects.filter(user=self.request.user, title=title).exists():
+            raise serializers.ValidationError("You have already uploaded a book with this title.")
 
-        # Если title не передан — установить по имени файла
-        data = serializer.validated_data
-        if not data.get('title'):
-            data['title'] = Path(file.name).stem
-
-        serializer.save(user=self.request.user, title=data['title'])
+        serializer.save(user=self.request.user, title=title)
 
 
 class ReadingPositionViewSet(viewsets.ModelViewSet):
