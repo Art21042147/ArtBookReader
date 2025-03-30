@@ -1,6 +1,8 @@
+import chardet
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import status, viewsets, permissions, serializers
 from django.contrib.auth import authenticate, login, logout
 from .utils.extractors import extract_title
@@ -65,6 +67,26 @@ class BookViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError("You have already uploaded a book with this title.")
 
         serializer.save(user=self.request.user, title=title)
+
+    @action(detail=True, methods=['get'])
+    def read(self, request, pk=None):
+        book = self.get_object()
+        file_path = book.file.path
+
+        if not book.file.name.endswith(".txt"):
+            return Response({"error": "Only .txt files are supported."}, status=415)
+
+        try:
+            with open(file_path, 'rb') as f:
+                raw_data = f.read()
+                result = chardet.detect(raw_data)
+                encoding = result['encoding'] or 'utf-8'
+
+            content = raw_data.decode(encoding)
+        except Exception as e:
+            return Response({"error": f"Could not read file: {e}"}, status=400)
+
+        return Response({"text": content})
 
 
 class ReadingPositionViewSet(viewsets.ModelViewSet):

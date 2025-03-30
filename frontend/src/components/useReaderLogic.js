@@ -69,6 +69,34 @@ export function useReaderLogic() {
     }
   }, [])
 
+  useEffect(() => {
+    const fetchLastBook = async () => {
+      try {
+        const response = await getMyBooks()
+        const books = response.data
+        if (books.length > 0) {
+          const lastBook = books[0]
+          setBook(lastBook)
+
+          const readResponse = await api.get(`/books/${lastBook.id}/read/`)
+          setBookText(readResponse.data.text)
+          setShowPosition(true)
+
+          setTimeout(() => {
+            const saved = localStorage.getItem('scrollPosition')
+            if (saved && scrollRef.current) {
+              scrollRef.current.scrollTop = parseInt(saved, 10)
+            }
+          }, 100)
+        }
+      } catch (err) {
+        console.error('Error loading last book:', err)
+      }
+    }
+
+    fetchLastBook()
+  }, [])
+
   return {
     user,
     book,
