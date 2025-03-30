@@ -1,7 +1,8 @@
+from pathlib import Path
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, viewsets, permissions
+from rest_framework import status, viewsets, permissions, serializers
 from django.contrib.auth import authenticate, login, logout
 from .models import Book, ReadingPosition, Bookmark
 from .serializers import (UserSerializer,
@@ -56,7 +57,22 @@ class BookViewSet(viewsets.ModelViewSet):
         return Book.objects.filter(user=self.request.user).order_by('-uploaded_at')
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        file = self.request.FILES.get("file")
+        filename = Path(file.name).name
+
+        # Проверка на дубликаты по имени файла
+        existing_books = Book.objects.filter(user=self.request.user)
+        for book in existing_books:
+            existing_name = Path(book.file.name).name
+            if existing_name == filename:
+                raise serializers.ValidationError("This book is already uploaded.")
+
+        # Если title не передан — установить по имени файла
+        data = serializer.validated_data
+        if not data.get('title'):
+            data['title'] = Path(file.name).stem
+
+        serializer.save(user=self.request.user, title=data['title'])
 
 
 class ReadingPositionViewSet(viewsets.ModelViewSet):

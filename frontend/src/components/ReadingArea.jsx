@@ -9,7 +9,7 @@ export default function ReadingArea({
   return (
     <div
       ref={scrollRef}
-      className="flex-1 flex flex-col items-center justify-center px-8 text-lg leading-relaxed text-center overflow-y-scroll"
+      className="flex-1 overflow-y-auto flex flex-col items-center px-8 text-lg leading-relaxed text-center py-24"
     >
       <div className="max-w-4xl whitespace-pre-line text-left">
         {bookText ? bookText : (
@@ -18,7 +18,7 @@ export default function ReadingArea({
       </div>
 
       {showPosition && (
-        <div className="absolute bottom-4 text-base text-gray-400">
+        <div className="fixed top-4 right-6 text-base text-gray-400 z-40">
           <p>
             Page {pageInfo.current} of {pageInfo.total} ({pageInfo.percent}%)
           </p>
