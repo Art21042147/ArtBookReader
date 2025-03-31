@@ -3,6 +3,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework import status, viewsets, permissions, serializers
 from django.contrib.auth import authenticate, login, logout
 from .utils.extractors import extract_title
@@ -110,6 +111,31 @@ class ReadingPositionViewSet(viewsets.ModelViewSet):
             defaults={"last_position": last_position}
         )
         serializer = self.get_serializer(obj)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["get"], url_path="book")
+    def for_book(self, request, pk=None):
+        user = request.user
+        try:
+            position = ReadingPosition.objects.get(user=user, book_id=pk)
+        except ReadingPosition.DoesNotExist:
+            raise NotFound("No position found for this book")
+
+        serializer = self.get_serializer(position)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["get"], url_path="last")
+    def last_opened(self, request):
+        position = (
+            ReadingPosition.objects.filter(user=request.user)
+            .select_related("book")
+            .order_by("-last_opened_at")
+            .first()
+        )
+        if not position:
+            return Response({"detail": "No books opened yet."}, status=404)
+
+        serializer = BookSerializer(position.book)
         return Response(serializer.data)
 
 

@@ -16,6 +16,7 @@ class ReadingPosition(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="positions")
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="positions")
     last_position = models.IntegerField(default=0)
+    last_opened_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ("user", "book")

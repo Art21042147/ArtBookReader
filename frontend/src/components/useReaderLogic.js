@@ -91,7 +91,7 @@ export function useReaderLogic() {
             setTimeout(() => {
               const el = scrollRef.current
               const page = position.last_position
-              const scrollTo = (el.scrollHeight - el.clientHeight) * (page / 100)
+              const scrollTo = (page - 1) * el.clientHeight
               el.scrollTop = scrollTo
             }, 100)
           }
