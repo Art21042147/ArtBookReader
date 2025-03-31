@@ -96,8 +96,21 @@ class ReadingPositionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return ReadingPosition.objects.filter(user=self.request.user)
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        book_id = request.data.get("book")
+        last_position = request.data.get("last_position")
+
+        if not book_id or last_position is None:
+            return Response({"error": "Missing book or position"}, status=400)
+
+        obj, created = ReadingPosition.objects.update_or_create(
+            user=user,
+            book_id=book_id,
+            defaults={"last_position": last_position}
+        )
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data)
 
 
 class BookmarkViewSet(viewsets.ModelViewSet):

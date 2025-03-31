@@ -39,4 +39,24 @@ export const uploadBook = async (file) => {
 
 export const getMyBooks = () => api.get('/books/')
 
+export const saveReadingPosition = (bookId, last_position) =>
+  api.post(
+    '/positions/',
+    { book: bookId, last_position },
+    { headers: { 'Content-Type': 'application/json' } }
+  )
+
+export const getReadingPosition = async (bookId) => {
+  const response = await api.get('/positions/')
+  const data = response.data
+
+  if (Array.isArray(data)) {
+    return data.find(pos => pos.book === bookId)
+  }
+
+  if (data.book === bookId) return data
+
+  return null
+}
+
 export default api

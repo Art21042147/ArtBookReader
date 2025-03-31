@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import api from '../axios'
-import { uploadBook, getMyBooks } from '../axios'
+import { uploadBook, getMyBooks, getReadingPosition, saveReadingPosition } from '../axios'
 
 export function useReaderLogic() {
   const [showPanel, setShowPanel] = useState(false)
@@ -51,7 +51,7 @@ export function useReaderLogic() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (!scrollRef.current) return
+      if (!scrollRef.current || !book) return
       const el = scrollRef.current
       const scrollTop = el.scrollTop
       const scrollHeight = el.scrollHeight - el.clientHeight
@@ -59,15 +59,19 @@ export function useReaderLogic() {
       const totalPages = Math.max(Math.ceil(scrollHeight / el.clientHeight), 1)
       const currentPage = Math.min(Math.max(Math.round(scrollTop / el.clientHeight) + 1, 1), totalPages)
       setPageInfo({ current: currentPage, total: totalPages, percent })
-      localStorage.setItem('scrollPosition', scrollTop)
+  
+      // Save to backend
+      saveReadingPosition(book.id, currentPage).catch(err =>
+        console.error('Error saving reading position:', err)
+      )
     }
-
+  
     const el = scrollRef.current
     if (el) el.addEventListener('scroll', handleScroll)
     return () => {
       if (el) el.removeEventListener('scroll', handleScroll)
     }
-  }, [])
+  }, [book])
 
   useEffect(() => {
     const fetchLastBook = async () => {
@@ -77,17 +81,20 @@ export function useReaderLogic() {
         if (books.length > 0) {
           const lastBook = books[0]
           setBook(lastBook)
-
+    
           const readResponse = await api.get(`/books/${lastBook.id}/read/`)
           setBookText(readResponse.data.text)
           setShowPosition(true)
-
-          setTimeout(() => {
-            const saved = localStorage.getItem('scrollPosition')
-            if (saved && scrollRef.current) {
-              scrollRef.current.scrollTop = parseInt(saved, 10)
-            }
-          }, 100)
+    
+          const position = await getReadingPosition(lastBook.id)
+          if (position && scrollRef.current) {
+            setTimeout(() => {
+              const el = scrollRef.current
+              const page = position.last_position
+              const scrollTo = (el.scrollHeight - el.clientHeight) * (page / 100)
+              el.scrollTop = scrollTo
+            }, 100)
+          }
         }
       } catch (err) {
         console.error('Error loading last book:', err)
