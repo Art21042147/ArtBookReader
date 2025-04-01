@@ -8,6 +8,8 @@ export default function Sidebar({
   togglePanel,
   fileInputRef,
   handleFileChange,
+  library,
+  setBook,
 }) {
   return (
     <div
@@ -32,6 +34,22 @@ export default function Sidebar({
         <li className="hover:text-blue-400 cursor-pointer">🔍 Find</li>
         <li className="hover:text-blue-400 cursor-pointer">📌 Bookmarks</li>
         <li className="hover:text-blue-400 cursor-pointer">📚 Library</li>
+        <ul className="pl-4 space-y-2 max-h-40 overflow-y-auto text-sm">
+          {library.map((b) => (
+            <li
+              key={b.id}
+              className="cursor-pointer hover:text-emerald-400 truncate"
+              onClick={async () => {
+                const text = await api.get(`/books/${b.id}/read/`).then(res => res.data.text)
+                setBook(b)
+                document.querySelector('[data-scrollable]').scrollTop = 0
+                document.querySelector('[data-scrollable]').innerText = text
+              }}
+            >
+              📘 {b.title}
+            </li>
+          ))}
+        </ul>
         <li
           className="hover:text-blue-400 cursor-pointer"
           onClick={() => fileInputRef.current.click()}

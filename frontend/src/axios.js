@@ -62,4 +62,9 @@ export const getBookText = async (bookId) => {
   return response.data.text
 }
 
+export const getAllBooks = async () => {
+  const response = await api.get('/books/')
+  return response.data
+}
+
 export default api

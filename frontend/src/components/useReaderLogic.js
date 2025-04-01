@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { uploadBook, getReadingPosition, getLastOpenedBook, 
-  saveReadingPosition, markBookAsOpened, getBookText } from '../axios'
+  saveReadingPosition, markBookAsOpened, getBookText, getAllBooks} from '../axios'
 import api from '../axios'
 
 export function useReaderLogic() {
@@ -10,6 +10,7 @@ export function useReaderLogic() {
   const [pageInfo, setPageInfo] = useState({ current: 1, total: 1, percent: 0 })
   const [user, setUser] = useState(null)
   const [book, setBook] = useState(null)
+  const [library, setLibrary] = useState([])
   const fileInputRef = useRef()
   const scrollRef = useRef()
 
@@ -102,6 +103,19 @@ export function useReaderLogic() {
     fetchLastBook()
   }, [])
 
+  useEffect(() => {
+    const fetchLibrary = async () => {
+      try {
+        const books = await getAllBooks()
+        setLibrary(books)
+      } catch (err) {
+        console.error('Failed to fetch library:', err)
+      }
+    }
+
+    fetchLibrary()
+  }, [])
+
   return {
     user,
     book,
@@ -115,6 +129,7 @@ export function useReaderLogic() {
     setUser,
     setBook,
     setBookText,
-    handleFileChange
+    handleFileChange,
+    library,
   }
 } 
