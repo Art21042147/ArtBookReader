@@ -3,7 +3,7 @@ from PyPDF2 import PdfReader
 from ebooklib import epub
 from lxml import etree
 from docx import Document
-
+import chardet
 
 def extract_title(file):
     filename = Path(file.name).stem
@@ -27,8 +27,16 @@ def extract_title(file):
             return title_info.text.strip() if title_info is not None else filename
 
         elif ext == ".txt":
-            first_line = file.readline().decode("utf-8").strip()
-            return first_line if first_line else filename
+            raw = file.read()
+            result = chardet.detect(raw)
+            encoding = result["encoding"] or "utf-8"
+
+            try:
+                content = raw.decode(encoding)
+                first_line = content.strip().split('\n')[0]
+                return first_line if first_line else filename
+            except Exception:
+                return filename
 
         elif ext == ".docx":
             document = Document(file)

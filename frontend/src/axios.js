@@ -1,22 +1,17 @@
 import axios from 'axios'
 
-// Get CSRF token from cookie
 function getCookie(name) {
   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
   return match ? decodeURIComponent(match[2]) : null
 }
 
-// Create an axios instance
 const api = axios.create({
   baseURL: '/api/',
   withCredentials: true,
 })
 
-// Add the CSRF token to all necessary requests
 api.interceptors.request.use((config) => {
   const csrfToken = getCookie('csrftoken')
-
-  // Only for methods with a request body
   const csrfMethods = ['post', 'put', 'patch', 'delete']
 
   if (
@@ -29,15 +24,12 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Books API
 export const uploadBook = async (file) => {
   const formData = new FormData()
   formData.append('title', file.name.replace(/\.[^/.]+$/, ''))
   formData.append('file', file)
   return api.post('/books/', formData)
 }
-
-export const getMyBooks = () => api.get('/books/')
 
 export const saveReadingPosition = (bookId, last_position) =>
   api.post(
@@ -47,16 +39,27 @@ export const saveReadingPosition = (bookId, last_position) =>
   )
 
 export const getReadingPosition = async (bookId) => {
-  const response = await api.get('/positions/')
-  const data = response.data
-
-  if (Array.isArray(data)) {
-    return data.find(pos => pos.book === bookId)
+  try {
+    const response = await api.get(`/positions/${bookId}/book/`)
+    return response.data
+  } catch (error) {
+    console.warn('No saved reading position for this book.')
+    return null
   }
+}
 
-  if (data.book === bookId) return data
+export const getLastOpenedBook = async () => {
+  const response = await api.get('/positions/last/')
+  return response.data
+}
 
-  return null
+export const markBookAsOpened = async (bookId) => {
+  return api.post(`/positions/${bookId}/mark-opened/`)
+}
+
+export const getBookText = async (bookId) => {
+  const response = await api.get(`/books/${bookId}/read/`)
+  return response.data.text
 }
 
 export default api

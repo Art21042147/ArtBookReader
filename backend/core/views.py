@@ -138,6 +138,18 @@ class ReadingPositionViewSet(viewsets.ModelViewSet):
         serializer = BookSerializer(position.book)
         return Response(serializer.data)
 
+    @action(detail=True, methods=["post"], url_path="mark-opened")
+    def mark_opened(self, request, pk=None):
+        user = request.user
+        book_id = pk
+
+        obj, created = ReadingPosition.objects.update_or_create(
+            user=user,
+            book_id=book_id,
+            defaults={}
+        )
+
+        return Response({"message": "Book marked as opened."})
 
 class BookmarkViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
