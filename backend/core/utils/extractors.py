@@ -4,6 +4,8 @@ from ebooklib import epub
 from lxml import etree
 from docx import Document
 import chardet
+import hashlib
+
 
 def extract_title(file):
     filename = Path(file.name).stem
@@ -51,3 +53,10 @@ def extract_title(file):
 
     file.seek(0)
     return filename
+
+
+def calculate_sha256(file_obj):
+    hasher = hashlib.sha256()
+    for chunk in file_obj.chunks():
+        hasher.update(chunk)
+    return hasher.hexdigest()

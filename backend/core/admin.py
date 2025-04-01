@@ -4,8 +4,8 @@ from .models import Book, ReadingPosition, Bookmark
 
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "user", "uploaded_at")
-    search_fields = ("title", "user__nickname")
+    list_display = ("id", "title", "user", "hash", "uploaded_at")
+    search_fields = ("title", "user__username")
     list_filter = ("uploaded_at",)
 
 
@@ -18,4 +18,4 @@ class ReadingPositionAdmin(admin.ModelAdmin):
 @admin.register(Bookmark)
 class BookmarkAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "book", "page", "note")
-    search_fields = ("user__nickname", "book__title", "note")
+    search_fields = ("user__username", "book__title", "note")

@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework import status, viewsets, permissions, serializers
 from django.contrib.auth import authenticate, login, logout
-from .utils.extractors import extract_title
+from .utils.extractors import extract_title, calculate_sha256
 from .models import Book, ReadingPosition, Bookmark
 from .serializers import (UserSerializer,
                           BookSerializer, ReadingPositionSerializer, BookmarkSerializer)
@@ -61,13 +61,15 @@ class BookViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         file = self.request.FILES.get("file")
+        hash_value = calculate_sha256(file)
+        file.seek(0)
         title = extract_title(file)
         file.seek(0)
 
-        if Book.objects.filter(user=self.request.user, title=title).exists():
-            raise serializers.ValidationError("You have already uploaded a book with this title.")
+        if Book.objects.filter(user=self.request.user, hash=hash_value).exists():
+            raise serializers.ValidationError("You have already uploaded this file.")
 
-        serializer.save(user=self.request.user, title=title)
+        serializer.save(user=self.request.user, title=title.strip(), hash=hash_value)
 
     @action(detail=True, methods=['get'])
     def read(self, request, pk=None):
@@ -150,6 +152,7 @@ class ReadingPositionViewSet(viewsets.ModelViewSet):
         )
 
         return Response({"message": "Book marked as opened."})
+
 
 class BookmarkViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
