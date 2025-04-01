@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-import { uploadBook, getReadingPosition, getLastOpenedBook, 
-  saveReadingPosition, markBookAsOpened, getBookText, getAllBooks} from '../axios'
+import {
+  uploadBook, getReadingPosition, getLastOpenedBook,
+  saveReadingPosition, markBookAsOpened, getBookText, getAllBooks
+} from '../axios'
 import api from '../axios'
 
 export function useReaderLogic() {
@@ -46,6 +48,28 @@ export function useReaderLogic() {
     }
   }
 
+  const openBook = async (book) => {
+    try {
+      const text = await getBookText(book.id)
+      setBook(book)
+      setBookText(text)
+      setShowPosition(true)
+      await markBookAsOpened(book.id)
+
+      const position = await getReadingPosition(book.id)
+      if (position && scrollRef.current) {
+        setTimeout(() => {
+          const el = scrollRef.current
+          const page = position.last_position
+          const scrollTo = (page - 1) * el.clientHeight
+          el.scrollTop = scrollTo
+        }, 100)
+      }
+    } catch (err) {
+      console.error('Failed to open book:', err)
+    }
+  }
+
   useEffect(() => {
     api.get('/profile/')
       .then(res => setUser(res.data))
@@ -79,22 +103,7 @@ export function useReaderLogic() {
     const fetchLastBook = async () => {
       try {
         const lastBook = await getLastOpenedBook()
-        setBook(lastBook)
-
-        const text = await getBookText(lastBook.id)
-        setBookText(text)
-        setShowPosition(true)
-        await markBookAsOpened(lastBook.id)
-
-        const position = await getReadingPosition(lastBook.id)
-        if (position && scrollRef.current) {
-          setTimeout(() => {
-            const el = scrollRef.current
-            const page = position.last_position
-            const scrollTo = (page - 1) * el.clientHeight
-            el.scrollTop = scrollTo
-          }, 100)
-        }
+        openBook(lastBook)
       } catch (err) {
         console.error('Error loading last book:', err)
       }
@@ -131,5 +140,6 @@ export function useReaderLogic() {
     setBookText,
     handleFileChange,
     library,
+    openBook,
   }
-} 
+}

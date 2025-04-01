@@ -1,5 +1,4 @@
 import React from 'react'
-import api from '../axios'
 
 export default function Sidebar({
   user,
@@ -9,7 +8,7 @@ export default function Sidebar({
   fileInputRef,
   handleFileChange,
   library,
-  setBook,
+  openBook,
 }) {
   return (
     <div
@@ -39,12 +38,7 @@ export default function Sidebar({
             <li
               key={b.id}
               className="cursor-pointer hover:text-emerald-400 truncate"
-              onClick={async () => {
-                const text = await api.get(`/books/${b.id}/read/`).then(res => res.data.text)
-                setBook(b)
-                document.querySelector('[data-scrollable]').scrollTop = 0
-                document.querySelector('[data-scrollable]').innerText = text
-              }}
+              onClick={() => openBook(b)}
             >
               📘 {b.title}
             </li>
@@ -60,7 +54,7 @@ export default function Sidebar({
 
       <button
         onClick={async () => {
-          await api.post('logout/')
+          await fetch('/api/logout/', { method: 'POST', credentials: 'include' })
           document.cookie = 'sessionid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/'
           document.cookie = 'csrftoken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/'
           window.location.href = '/'
