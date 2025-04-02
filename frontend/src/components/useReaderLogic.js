@@ -13,6 +13,7 @@ export function useReaderLogic() {
   const [user, setUser] = useState(null)
   const [book, setBook] = useState(null)
   const [library, setLibrary] = useState([])
+  const [bookmarks, setBookmarks] = useState([])
   const fileInputRef = useRef()
   const scrollRef = useRef()
 
@@ -31,6 +32,7 @@ export function useReaderLogic() {
           const response = await uploadBook(file)
           setBook(response.data)
           await markBookAsOpened(response.data.id)
+          fetchBookmarks(response.data.id)
 
           setTimeout(() => {
             const saved = localStorage.getItem('scrollPosition')
@@ -55,6 +57,7 @@ export function useReaderLogic() {
       setBookText(text)
       setShowPosition(true)
       await markBookAsOpened(book.id)
+      fetchBookmarks(book.id)
 
       const position = await getReadingPosition(book.id)
       if (position && scrollRef.current) {
@@ -67,6 +70,44 @@ export function useReaderLogic() {
       }
     } catch (err) {
       console.error('Failed to open book:', err)
+    }
+  }
+
+  const fetchBookmarks = async (bookId) => {
+    try {
+      const res = await api.get('/bookmarks/')
+      const filtered = res.data.filter((b) => b.book === bookId)
+      setBookmarks(filtered)
+    } catch (err) {
+      console.error('Error loading bookmarks:', err)
+    }
+  }
+
+  const addBookmark = async (note, page) => {
+    try {
+      const res = await api.post('/bookmarks/', {
+        book: book.id,
+        note,
+        page,
+      })
+      setBookmarks((prev) => [...prev, res.data])
+    } catch (err) {
+      alert('Failed to add bookmark')
+    }
+  }
+
+  const deleteBookmark = async (id) => {
+    try {
+      await api.delete(`/bookmarks/${id}/`)
+      setBookmarks((prev) => prev.filter((b) => b.id !== id))
+    } catch (err) {
+      alert('Failed to delete bookmark')
+    }
+  }
+
+  const goToPage = (page) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = (page - 1) * scrollRef.current.clientHeight
     }
   }
 
@@ -141,5 +182,9 @@ export function useReaderLogic() {
     handleFileChange,
     library,
     openBook,
+    bookmarks,
+    addBookmark,
+    deleteBookmark,
+    goToPage,
   }
 }
