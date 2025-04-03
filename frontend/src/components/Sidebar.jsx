@@ -8,6 +8,7 @@ export default function Sidebar({
   fileInputRef,
   handleFileChange,
   library,
+  setBook,
   openBook,
   addBookmark,
   deleteBookmark,
@@ -16,6 +17,7 @@ export default function Sidebar({
   goToPage,
 }) {
   const [showBookmarks, setShowBookmarks] = useState(false)
+  const [showLibrary, setShowLibrary] = useState(false)  // 👈 новое состояние
   const [noteInput, setNoteInput] = useState('')
 
   return (
@@ -28,6 +30,7 @@ export default function Sidebar({
       <h2 className="text-2xl font-bold mb-6">
         👤 {user?.username || '...'}
       </h2>
+
       <div className="mb-6">
         <img
           src="/placeholder-book.jpg"
@@ -36,9 +39,11 @@ export default function Sidebar({
         />
         <p className="mt-4 font-semibold text-lg">📖 {book?.title || 'No book'}</p>
       </div>
+
       <ul className="space-y-4">
         <li className="hover:text-blue-400 cursor-pointer">📑 Content</li>
         <li className="hover:text-blue-400 cursor-pointer">🔍 Find</li>
+
         <li
           className="hover:text-blue-400 cursor-pointer"
           onClick={() => setShowBookmarks(!showBookmarks)}
@@ -85,18 +90,27 @@ export default function Sidebar({
           </div>
         )}
 
-        <li className="hover:text-blue-400 cursor-pointer">📚 Library</li>
-        <ul className="pl-4 space-y-2 max-h-40 overflow-y-auto text-sm">
-          {library.map((b) => (
-            <li
-              key={b.id}
-              className="cursor-pointer hover:text-emerald-400 truncate"
-              onClick={() => openBook(b)}
-            >
-              📘 {b.title}
-            </li>
-          ))}
-        </ul>
+        <li
+          className="hover:text-blue-400 cursor-pointer"
+          onClick={() => setShowLibrary(!showLibrary)} // 👈 переключение Library
+        >
+          📚 Library
+        </li>
+
+        {showLibrary && (
+          <ul className="pl-4 space-y-2 max-h-40 overflow-y-auto text-sm">
+            {library.map((b) => (
+              <li
+                key={b.id}
+                className="cursor-pointer hover:text-emerald-400 truncate"
+                onClick={() => openBook(b)}  // 👈 используем openBook
+              >
+                📘 {b.title}
+              </li>
+            ))}
+          </ul>
+        )}
+
         <li
           className="hover:text-blue-400 cursor-pointer"
           onClick={() => fileInputRef.current.click()}
