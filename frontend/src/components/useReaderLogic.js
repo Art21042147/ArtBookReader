@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
+import { uploadBook, getLastOpenedBook, saveReadingPosition, getAllBooks } from '../axios'
+import { openBookLogic } from './openBookLogic'
 import {
-  uploadBook, getReadingPosition, getLastOpenedBook,
-  saveReadingPosition, markBookAsOpened, getBookText, getAllBooks
-} from '../axios'
-import api from '../axios'
+  fetchBookmarks as fetchBookmarksLogic,
+  addBookmark as addBookmarkLogic,
+  deleteBookmark as deleteBookmarkLogic
+} from './bookmarksLogic'
 
 export function useReaderLogic() {
   const [showPanel, setShowPanel] = useState(false)
@@ -31,9 +33,7 @@ export function useReaderLogic() {
 
           const response = await uploadBook(file)
           setBook(response.data)
-          await markBookAsOpened(response.data.id)
-          fetchBookmarks(response.data.id)
-
+          await openBook(response.data)
           setTimeout(() => {
             const saved = localStorage.getItem('scrollPosition')
             if (saved && scrollRef.current) {
@@ -50,59 +50,23 @@ export function useReaderLogic() {
     }
   }
 
-  const openBook = async (book) => {
-    try {
-      const text = await getBookText(book.id)
-      setBook(book)
-      setBookText(text)
-      setShowPosition(true)
-      await markBookAsOpened(book.id)
-      fetchBookmarks(book.id)
-
-      const position = await getReadingPosition(book.id)
-      if (position && scrollRef.current) {
-        setTimeout(() => {
-          const el = scrollRef.current
-          const page = position.last_position
-          const scrollTo = (page - 1) * el.clientHeight
-          el.scrollTop = scrollTo
-        }, 100)
-      }
-    } catch (err) {
-      console.error('Failed to open book:', err)
-    }
-  }
-
-  const fetchBookmarks = async (bookId) => {
-    try {
-      const res = await api.get('/bookmarks/')
-      const filtered = res.data.filter((b) => b.book === bookId)
-      setBookmarks(filtered)
-    } catch (err) {
-      console.error('Error loading bookmarks:', err)
-    }
+  const openBook = async (b) => {
+    await openBookLogic({
+      book: b,
+      setBook,
+      setBookText,
+      setShowPosition,
+      scrollRef,
+      setBookmarks,
+    })
   }
 
   const addBookmark = async (note, page) => {
-    try {
-      const res = await api.post('/bookmarks/', {
-        book: book.id,
-        note,
-        page,
-      })
-      setBookmarks((prev) => [...prev, res.data])
-    } catch (err) {
-      alert('Failed to add bookmark')
-    }
+    await addBookmarkLogic(book.id, note, page, setBookmarks)
   }
 
   const deleteBookmark = async (id) => {
-    try {
-      await api.delete(`/bookmarks/${id}/`)
-      setBookmarks((prev) => prev.filter((b) => b.id !== id))
-    } catch (err) {
-      alert('Failed to delete bookmark')
-    }
+    await deleteBookmarkLogic(id, setBookmarks)
   }
 
   const goToPage = (page) => {
@@ -112,8 +76,9 @@ export function useReaderLogic() {
   }
 
   useEffect(() => {
-    api.get('/profile/')
-      .then(res => setUser(res.data))
+    fetch('/api/profile/')
+      .then(res => res.json())
+      .then(data => setUser(data))
       .catch(() => setUser(null))
   }, [])
 

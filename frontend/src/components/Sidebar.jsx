@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import api from '../axios'
 
 export default function Sidebar({
   user,
@@ -17,7 +18,7 @@ export default function Sidebar({
   goToPage,
 }) {
   const [showBookmarks, setShowBookmarks] = useState(false)
-  const [showLibrary, setShowLibrary] = useState(false)  // 👈 новое состояние
+  const [showLibrary, setShowLibrary] = useState(false)
   const [noteInput, setNoteInput] = useState('')
 
   return (
@@ -92,7 +93,7 @@ export default function Sidebar({
 
         <li
           className="hover:text-blue-400 cursor-pointer"
-          onClick={() => setShowLibrary(!showLibrary)} // 👈 переключение Library
+          onClick={() => setShowLibrary(!showLibrary)}
         >
           📚 Library
         </li>
@@ -103,7 +104,7 @@ export default function Sidebar({
               <li
                 key={b.id}
                 className="cursor-pointer hover:text-emerald-400 truncate"
-                onClick={() => openBook(b)}  // 👈 используем openBook
+                onClick={() => openBook(b)}
               >
                 📘 {b.title}
               </li>
@@ -121,9 +122,7 @@ export default function Sidebar({
 
       <button
         onClick={async () => {
-          await fetch('/api/logout/', { method: 'POST', credentials: 'include' })
-          document.cookie = 'sessionid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/'
-          document.cookie = 'csrftoken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/'
+          await api.post('logout/')
           window.location.href = '/'
         }}
         className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded"
