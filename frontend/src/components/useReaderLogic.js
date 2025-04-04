@@ -23,33 +23,25 @@ export function useReaderLogic() {
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0]
-    if (file && file.type === 'text/plain') {
+    if (!file) return
+  
+    const ext = file.name.split('.').pop().toLowerCase()
+    const supported = ['txt', 'fb2']
+  
+    if (supported.includes(ext)) {
       try {
-        const reader = new FileReader()
-        reader.onload = async () => {
-          const bookText = reader.result
-          setBookText(bookText)
-          setShowPosition(true)
-
-          const response = await uploadBook(file)
-          setBook(response.data)
-          await openBook(response.data)
-          setTimeout(() => {
-            const saved = localStorage.getItem('scrollPosition')
-            if (saved && scrollRef.current) {
-              scrollRef.current.scrollTop = parseInt(saved, 10)
-            }
-          }, 100)
-        }
-        reader.readAsText(file, 'UTF-8')
+        const response = await uploadBook(file)
+        setBook(response.data)
+        await openBook(response.data)
       } catch (err) {
         alert('Upload failed')
+        console.error(err)
       }
     } else {
-      alert('Please select a .txt file')
+      alert('Please select a supported file (.txt, .fb2)')
     }
   }
-
+  
   const openBook = async (b) => {
     await openBookLogic({
       book: b,
@@ -72,6 +64,27 @@ export function useReaderLogic() {
   const goToPage = (page) => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = (page - 1) * scrollRef.current.clientHeight
+    }
+  }
+
+  const goToHeading = (title) => {
+    if (!scrollRef.current || !bookText) return
+
+    const el = scrollRef.current
+    const target = bookText.indexOf(title)
+
+    if (target !== -1) {
+      const preview = bookText.slice(0, target)
+      const lines = preview.split('\n').length
+      const approxLineHeight = 2.5
+      const scrollTo = lines * approxLineHeight * 10
+
+      el.scrollTo({
+        top: scrollTo,
+        behavior: 'smooth'
+      })
+    } else {
+      console.warn('Heading not found in text:', title)
     }
   }
 
@@ -151,5 +164,6 @@ export function useReaderLogic() {
     addBookmark,
     deleteBookmark,
     goToPage,
+    goToHeading,
   }
 }

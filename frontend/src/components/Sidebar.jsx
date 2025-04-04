@@ -16,9 +16,11 @@ export default function Sidebar({
   bookmarks,
   pageInfo,
   goToPage,
+  goToHeading,
 }) {
   const [showBookmarks, setShowBookmarks] = useState(false)
   const [showLibrary, setShowLibrary] = useState(false)
+  const [showContent, setShowContent] = useState(false)
   const [noteInput, setNoteInput] = useState('')
 
   return (
@@ -33,16 +35,36 @@ export default function Sidebar({
       </h2>
 
       <div className="mb-6">
-        <img
-          src="/placeholder-book.jpg"
-          alt="Cover"
-          className="w-full h-auto rounded shadow"
-        />
         <p className="mt-4 font-semibold text-lg">📖 {book?.title || 'No book'}</p>
+        {book?.author && (
+          <p className="text-sm text-gray-400 italic mt-1">
+            ✍️ {book.author}
+          </p>
+        )}
       </div>
 
       <ul className="space-y-4">
-        <li className="hover:text-blue-400 cursor-pointer">📑 Content</li>
+        <li
+          className="hover:text-blue-400 cursor-pointer"
+          onClick={() => setShowContent(!showContent)}
+        >
+          📑 Content
+        </li>
+
+        {showContent && book?.content?.chapters?.length > 0 && (
+          <ul className="pl-4 text-sm space-y-1 max-h-48 overflow-y-auto">
+            {book.content.chapters.map((item, index) => (
+              <li
+                key={index}
+                className="cursor-pointer hover:text-emerald-400 truncate"
+                onClick={() => goToHeading(item.title)}
+              >
+                📄 {item.title}
+              </li>
+            ))}
+          </ul>
+        )}
+
         <li className="hover:text-blue-400 cursor-pointer">🔍 Find</li>
 
         <li
@@ -134,7 +156,7 @@ export default function Sidebar({
         <input
           type="file"
           ref={fileInputRef}
-          accept=".txt"
+          accept=".txt, .doc, .docx, .fb2, .epub, .pdf, .djvu"
           onChange={handleFileChange}
         />
       </div>

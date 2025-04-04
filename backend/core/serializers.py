@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ["id", "user", "title", "file", "uploaded_at"]
+        fields = ["id", "user", "title", "author", "content", "file", "uploaded_at"]
         read_only_fields = ["user"]
 
 

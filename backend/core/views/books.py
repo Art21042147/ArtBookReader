@@ -1,10 +1,11 @@
 import chardet
-from rest_framework import viewsets, permissions, status, serializers
+from rest_framework import viewsets, permissions, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from ..models import Book
 from ..serializers import BookSerializer
-from ..utils.extractors import extract_title, calculate_sha256
+from ..utils.extractors import extract_title, calculate_sha256, get_extension
+from ..utils.fb2_reader import extract_fb2_metadata, extract_fb2_text
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -18,26 +19,53 @@ class BookViewSet(viewsets.ModelViewSet):
         file = self.request.FILES.get("file")
         hash_value = calculate_sha256(file)
         file.seek(0)
-        title = extract_title(file)
+
+        ext = get_extension(file.name)
+        title = None
+        author = None
+        content = None
+
+        if ext == "fb2":
+            metadata = extract_fb2_metadata(file)
+            title = metadata.get("title")
+            author = metadata.get("author")
+            content = {
+                "chapters": metadata.get("chapters", []),
+            }
+        else:
+            title = extract_title(file)
+
         file.seek(0)
 
         if Book.objects.filter(user=self.request.user, hash=hash_value).exists():
             raise serializers.ValidationError("You have already uploaded this file.")
-        serializer.save(user=self.request.user, title=title.strip(), hash=hash_value)
+        serializer.save(
+            user=self.request.user,
+            title=title.strip() if title else "Untitled",
+            author=author,
+            content=content,
+            hash=hash_value
+        )
 
     @action(detail=True, methods=['get'])
     def read(self, request, pk=None):
         book = self.get_object()
         file_path = book.file.path
-
-        if not book.file.name.endswith(".txt"):
-            return Response({"error": "Only .txt files are supported."}, status=415)
+        ext = get_extension(book.file.name)
 
         try:
-            with open(file_path, 'rb') as f:
-                raw_data = f.read()
-                encoding = chardet.detect(raw_data)['encoding'] or 'utf-8'
-            content = raw_data.decode(encoding)
+            if ext == "txt":
+                with open(file_path, 'rb') as f:
+                    raw_data = f.read()
+                    encoding = chardet.detect(raw_data)['encoding'] or 'utf-8'
+                    content = raw_data.decode(encoding)
+
+            elif ext == "fb2":
+                content = extract_fb2_text(file_path)
+
+            else:
+                return Response({"error": f"Unsupported file type: .{ext}"}, status=415)
+
         except Exception as e:
             return Response({"error": f"Could not read file: {e}"}, status=400)
 

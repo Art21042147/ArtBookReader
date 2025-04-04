@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 class Book(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="books")
     title = models.CharField(max_length=255)
+    author = models.CharField(max_length=255, blank=True, null=True)
+    content = models.JSONField(blank=True, null=True)
     file = models.FileField(upload_to="books/")
     uploaded_at = models.DateTimeField(auto_now_add=True)
     hash = models.CharField(max_length=64, editable=False, db_index=True)
