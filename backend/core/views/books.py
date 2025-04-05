@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from ..models import Book
 from ..serializers import BookSerializer
 from ..utils.extractors import extract_title, calculate_sha256, get_extension
-from ..utils.fb2_reader import extract_fb2_metadata, extract_fb2_text
+from ..utils.fb2_reader import extract_fb2_metadata
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -61,7 +61,8 @@ class BookViewSet(viewsets.ModelViewSet):
                     content = raw_data.decode(encoding)
 
             elif ext == "fb2":
-                content = extract_fb2_text(file_path)
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
 
             else:
                 return Response({"error": f"Unsupported file type: .{ext}"}, status=415)

@@ -1,18 +1,29 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { renderFb2, extractNotes } from './fb2Renderer'
+import NoteModal from './NoteModal'
 
-export default function ReadingArea({
-  bookText,
-  scrollRef,
-  showPosition,
-  pageInfo,
-  book,
-}) {
+export default function ReadingArea({ bookText, scrollRef, showPosition, pageInfo, book }) {
+  const [notes, setNotes] = useState({})
+  const [activeNote, setActiveNote] = useState(null)
+  const [noteId, setNoteId] = useState(null)
+
+  const isFb2 = book?.file?.endsWith('.fb2') || book?.title?.toLowerCase().endsWith('.fb2')
+
+  useEffect(() => {
+    if (isFb2 && bookText) {
+      const parsedNotes = extractNotes(bookText)
+      setNotes(parsedNotes)
+    }
+  }, [bookText])
+
   const handleClick = (e) => {
-    const target = e.target
-    if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('#n_')) {
+    const link = e.target.closest('a')
+    if (link && link.getAttribute('href')?.startsWith('#n_')) {
       e.preventDefault()
-      const noteId = target.getAttribute('href').slice(1)
-      alert(`🔖 Note link clicked: ${noteId}`)
+      const id = link.getAttribute('href').slice(1)
+      const text = notes[id]
+      setActiveNote(text || 'Note not found')
+      setNoteId(id)
     }
   }
 
@@ -23,20 +34,14 @@ export default function ReadingArea({
       onClick={handleClick}
     >
       {bookText ? (
-        /<\/?[a-z][\s\S]*>/i.test(bookText) ? (
-          // HTML
-          <div
-            className="max-w-4xl text-left whitespace-pre-wrap"
-            dangerouslySetInnerHTML={{ __html: bookText }}
-          />
+        isFb2 ? (
+            renderFb2(bookText)
         ) : (
-          // txt
           <div className="max-w-4xl whitespace-pre-line text-left">
             {bookText}
           </div>
         )
       ) : (
-        // logo
         <h1 className="text-8xl font-bold opacity-50">ArtBookReader</h1>
       )}
 
@@ -47,6 +52,15 @@ export default function ReadingArea({
           </p>
         </div>
       )}
+
+      <NoteModal
+        noteText={activeNote}
+        noteId={noteId}
+        onClose={() => {
+          setActiveNote(null)
+          setNoteId(null)
+        }}
+      />
     </div>
   )
 }

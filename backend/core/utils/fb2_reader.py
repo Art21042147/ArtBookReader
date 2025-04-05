@@ -39,25 +39,3 @@ def extract_fb2_metadata(file):
 
     file.seek(0)
     return metadata
-
-
-def extract_fb2_text(file_path):
-    try:
-        with open(file_path, 'rb') as f:
-            content = f.read()
-            root = etree.fromstring(content)
-
-            sections = root.xpath("//*[local-name()='body' and not(@name)]/*[local-name()='section']")
-            html_blocks = []
-
-            for sec in sections:
-                paragraphs = sec.xpath("./*[local-name()='p']")
-                for elem in paragraphs:
-                    html = etree.tostring(elem, method='html', encoding='unicode')
-                    html_blocks.append(html.strip())
-
-            return '\n\n'.join(html_blocks)
-
-    except Exception as e:
-        print(f"[extract_fb2_text] Error: {e}")
-        return ""

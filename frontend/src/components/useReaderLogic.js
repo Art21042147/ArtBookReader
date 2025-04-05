@@ -68,24 +68,20 @@ export function useReaderLogic() {
   }
 
   const goToHeading = (title) => {
-    if (!scrollRef.current || !bookText) return
+    if (!scrollRef.current) return
 
     const el = scrollRef.current
-    const target = bookText.indexOf(title)
+    const headings = el.querySelectorAll('h2')
 
-    if (target !== -1) {
-      const preview = bookText.slice(0, target)
-      const lines = preview.split('\n').length
-      const approxLineHeight = 2.5
-      const scrollTo = lines * approxLineHeight * 10
-
-      el.scrollTo({
-        top: scrollTo,
-        behavior: 'smooth'
-      })
-    } else {
-      console.warn('Heading not found in text:', title)
+    for (let h of headings) {
+      const text = h.textContent.trim()
+      if (text === title.trim()) {
+        h.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        return
+      }
     }
+
+    console.warn('Heading not found in text:', title)
   }
 
   useEffect(() => {
