@@ -65,8 +65,6 @@ export default function Sidebar({
           </ul>
         )}
 
-        <li className="hover:text-blue-400 cursor-pointer">🔍 Find</li>
-
         <li
           className="hover:text-blue-400 cursor-pointer"
           onClick={() => setShowBookmarks(!showBookmarks)}

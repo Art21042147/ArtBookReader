@@ -1,7 +1,7 @@
 import React from 'react'
 
 /**
- * Основной рендерер тела книги fb2
+ * Main book body renderer fb2
  */
 export function renderFb2(xmlString) {
   if (!xmlString) return <p>🛑 Пустой fb2-файл</p>
@@ -9,7 +9,7 @@ export function renderFb2(xmlString) {
   try {
     const parser = new DOMParser()
 
-    // 🔧 Удаляем namespaces, чтобы избежать DOMException
+    // Remove namespaces to avoid DOMException
     const cleanedXml = xmlString
       .replace(/xmlns(:\w+)?="[^"]*"/g, '')
       .replace(/<(\/*)l:/g, '<$1')
@@ -20,7 +20,7 @@ export function renderFb2(xmlString) {
       b => !b.getAttribute('name') || b.getAttribute('name') === 'main'
     )
 
-    if (!mainBody) return <p>❌ Тело книги не найдено</p>
+    if (!mainBody) return <p>❌ The body of the book was not found.</p>
 
     const renderNode = (node, key) => {
       if (node.nodeType === 3) return node.textContent
@@ -82,13 +82,13 @@ export function renderFb2(xmlString) {
       </div>
     )
   } catch (err) {
-    console.error('🚨 Ошибка парсинга fb2:', err)
-    return <p>Ошибка парсинга fb2</p>
+    console.error('Parsing error fb2:', err)
+    return <p>Parsing error fb2</p>
   }
 }
 
 /**
- * Извлекает примечания по тегам <body name="notes">
+ * Extracts notes by tags <body name="notes">
  */
 export function extractNotes(xmlText) {
   const parser = new DOMParser()
