@@ -154,7 +154,7 @@ export default function Sidebar({
         <input
           type="file"
           ref={fileInputRef}
-          accept=".txt, .doc, .docx, .fb2, .epub, .pdf, .djvu"
+          accept=".txt, .fb2, .pdf, .djvu"
           onChange={handleFileChange}
         />
       </div>

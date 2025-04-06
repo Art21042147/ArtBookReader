@@ -1,13 +1,20 @@
 from pathlib import Path
-from PyPDF2 import PdfReader
-from lxml import etree
-from docx import Document
 import chardet
 import hashlib
+
+from .fb2_reader import extract_fb2_metadata
+from .pdf_reader import extract_pdf_metadata
 
 
 def get_extension(file_name):
     return Path(file_name).suffix.lower().lstrip('.')
+
+
+def calculate_sha256(file_obj):
+    hasher = hashlib.sha256()
+    for chunk in file_obj.chunks():
+        hasher.update(chunk)
+    return hasher.hexdigest()
 
 
 def extract_title(file):
@@ -15,17 +22,13 @@ def extract_title(file):
     ext = get_extension(file.name)
 
     try:
-        if ext == "pdf":
-            pdf = PdfReader(file)
-            meta = pdf.metadata
-            return meta.title.strip() if meta and meta.title else filename
+        if ext == "fb2":
+            meta = extract_fb2_metadata(file)
+            return meta.get("title") or filename
 
-
-        elif ext == "fb2":
-            content = file.read()
-            root = etree.fromstring(content)
-            title_info = root.find(".//title-info/book-title")
-            return title_info.text.strip() if title_info is not None else filename
+        elif ext == "pdf":
+            meta = extract_pdf_metadata(file)
+            return meta.get("title") or filename
 
         elif ext == "txt":
             raw = file.read()
@@ -39,11 +42,6 @@ def extract_title(file):
             except Exception:
                 return filename
 
-        elif ext == "docx":
-            document = Document(file)
-            paragraphs = [p.text.strip() for p in document.paragraphs if p.text.strip()]
-            return paragraphs[0] if paragraphs else filename
-
         elif ext == "djvu":
             return filename
 
@@ -52,10 +50,3 @@ def extract_title(file):
 
     file.seek(0)
     return filename
-
-
-def calculate_sha256(file_obj):
-    hasher = hashlib.sha256()
-    for chunk in file_obj.chunks():
-        hasher.update(chunk)
-    return hasher.hexdigest()

@@ -6,6 +6,7 @@ from ..models import Book
 from ..serializers import BookSerializer
 from ..utils.extractors import extract_title, calculate_sha256, get_extension
 from ..utils.fb2_reader import extract_fb2_metadata
+from ..utils.pdf_reader import extract_pdf_metadata
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -32,6 +33,16 @@ class BookViewSet(viewsets.ModelViewSet):
             content = {
                 "chapters": metadata.get("chapters", []),
             }
+
+        elif ext == "pdf":
+            metadata = extract_pdf_metadata(file)
+            title = metadata.get("title")
+            toc = metadata.get("toc")
+            if toc:
+                content = {
+                    "chapters": [{"title": str(item.title)} for item in toc if hasattr(item, "title")]
+                }
+
         else:
             title = extract_title(file)
 

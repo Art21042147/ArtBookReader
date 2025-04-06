@@ -26,7 +26,7 @@ export function useReaderLogic() {
     if (!file) return
   
     const ext = file.name.split('.').pop().toLowerCase()
-    const supported = ['txt', 'fb2']
+    const supported = ['txt', 'fb2', 'pdf', 'djvu']
   
     if (supported.includes(ext)) {
       try {
@@ -38,7 +38,7 @@ export function useReaderLogic() {
         console.error(err)
       }
     } else {
-      alert('Please select a supported file (.txt, .fb2)')
+      alert('Please select a supported file (.txt, .fb2, .pdf, .djvu)')
     }
   }
   
