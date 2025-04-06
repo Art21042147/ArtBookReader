@@ -75,6 +75,9 @@ class BookViewSet(viewsets.ModelViewSet):
                 with open(file_path, 'r', encoding='utf-8') as f:
                     content = f.read()
 
+            elif ext == "pdf":
+                return Response({"text": None})
+
             else:
                 return Response({"error": f"Unsupported file type: .{ext}"}, status=415)
 

@@ -8,6 +8,7 @@ export default function ReadingArea({ bookText, scrollRef, showPosition, pageInf
   const [noteId, setNoteId] = useState(null)
 
   const isFb2 = book?.file?.endsWith('.fb2') || book?.title?.toLowerCase().endsWith('.fb2')
+  const isPdf = book?.file?.endsWith('.pdf') || book?.title?.toLowerCase().endsWith('.pdf')
 
   useEffect(() => {
     if (isFb2 && bookText) {
@@ -15,6 +16,16 @@ export default function ReadingArea({ bookText, scrollRef, showPosition, pageInf
       setNotes(parsedNotes)
     }
   }, [bookText])
+
+  useEffect(() => {
+    // If there is content - open in a new tab
+    if (isPdf) {
+      const hasContent = book?.content && book.content.chapters && book.content.chapters.length > 0
+      if (hasContent) {
+        window.open(book.file.startsWith('http') ? book.file : `/${book.file}`, '_blank')
+      }
+    }
+  }, [isPdf, book])
 
   const handleClick = (e) => {
     const link = e.target.closest('a')
@@ -33,19 +44,23 @@ export default function ReadingArea({ bookText, scrollRef, showPosition, pageInf
       className="flex-1 overflow-y-auto flex flex-col items-center px-8 text-lg leading-relaxed text-center py-24"
       onClick={handleClick}
     >
-      {bookText ? (
+      {isPdf && (!book?.content?.chapters?.length) ? (
+        <iframe
+          src={`/media/${book.file}`}
+          className="w-full h-[90vh] border-none rounded shadow-lg"
+          title="PDF Viewer"
+        />
+      ) : bookText ? (
         isFb2 ? (
-            renderFb2(bookText)
+          renderFb2(bookText)
         ) : (
-          <div className="max-w-4xl whitespace-pre-line text-left">
-            {bookText}
-          </div>
+          <div className="max-w-4xl whitespace-pre-line text-left">{bookText}</div>
         )
       ) : (
         <h1 className="text-8xl font-bold opacity-50">ArtBookReader</h1>
       )}
 
-      {showPosition && (
+      {showPosition && !isPdf && (
         <div className="fixed top-4 right-6 text-base text-gray-400 z-40">
           <p>
             Page {pageInfo.current} of {pageInfo.total} ({pageInfo.percent}%)
