@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { renderFb2, extractNotes } from './fb2Renderer'
-import PdfCanvasViewer from './PdfCanvasViewer'
 import NoteModal from './NoteModal'
 
 export default function ReadingArea({ bookText, scrollRef, showPosition, pageInfo, book }) {
@@ -17,16 +16,6 @@ export default function ReadingArea({ bookText, scrollRef, showPosition, pageInf
       setNotes(parsedNotes)
     }
   }, [bookText])
-
-  useEffect(() => {
-    // If there is content - open in a new tab
-    if (isPdf) {
-      const hasContent = book?.content && book.content.chapters && book.content.chapters.length > 0
-      if (hasContent) {
-        window.open(book.file.startsWith('http') ? book.file : `/${book.file}`, '_blank')
-      }
-    }
-  }, [isPdf, book])
 
   const handleClick = (e) => {
     const link = e.target.closest('a')
@@ -45,11 +34,9 @@ export default function ReadingArea({ bookText, scrollRef, showPosition, pageInf
       className="flex-1 overflow-y-auto flex flex-col items-center px-8 text-lg leading-relaxed text-center py-24"
       onClick={handleClick}
     >
-      {isPdf && book?.title === 'Untitled' && !book?.content ? (
-        <PdfCanvasViewer fileUrl={`/media/${book.file}`} />
-      ) : isPdf && (!book?.content?.chapters?.length) ? (
+      {isPdf ? (
         <iframe
-          src={book.file.startsWith('/') ? book.file : `/${book.file}`}
+          src={book.file.startsWith('/') ? book.file : new URL(book.file).pathname}
           className="w-full h-[90vh] border-none rounded shadow-lg"
           title="PDF Viewer"
         />
