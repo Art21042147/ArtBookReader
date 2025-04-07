@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { renderFb2, extractNotes } from './fb2Renderer'
+import PdfCanvasViewer from './PdfCanvasViewer'
 import NoteModal from './NoteModal'
 
 export default function ReadingArea({ bookText, scrollRef, showPosition, pageInfo, book }) {
@@ -44,9 +45,11 @@ export default function ReadingArea({ bookText, scrollRef, showPosition, pageInf
       className="flex-1 overflow-y-auto flex flex-col items-center px-8 text-lg leading-relaxed text-center py-24"
       onClick={handleClick}
     >
-      {isPdf && (!book?.content?.chapters?.length) ? (
+      {isPdf && book?.title === 'Untitled' && !book?.content ? (
+        <PdfCanvasViewer fileUrl={`/media/${book.file}`} />
+      ) : isPdf && (!book?.content?.chapters?.length) ? (
         <iframe
-          src={`/media/${book.file}`}
+          src={book.file.startsWith('/') ? book.file : `/${book.file}`}
           className="w-full h-[90vh] border-none rounded shadow-lg"
           title="PDF Viewer"
         />

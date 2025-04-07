@@ -1,3 +1,4 @@
+import os
 import chardet
 from rest_framework import viewsets, permissions, serializers
 from rest_framework.decorators import action
@@ -52,7 +53,7 @@ class BookViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError("You have already uploaded this file.")
         serializer.save(
             user=self.request.user,
-            title=title.strip() if title else "Untitled",
+            title=title.strip() if title else os.path.splitext(file.name)[0],
             author=author,
             content=content,
             hash=hash_value
