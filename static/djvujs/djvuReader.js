@@ -8,13 +8,13 @@ window.djvuReader = (function () {
 
   function savePage() {
     if (fileKey) {
-      localStorage.setItem('djvu_pos_' + fileKey, currentPage)
+      localStorage.setItem('djvu_page_' + fileKey, currentPage)
     }
   }
 
   function loadSavedPage() {
     if (fileKey) {
-      const saved = localStorage.getItem('djvu_pos_' + fileKey)
+      const saved = localStorage.getItem('djvu_page_' + fileKey)
       return saved ? parseInt(saved) : 0
     }
     return 0
@@ -22,58 +22,71 @@ window.djvuReader = (function () {
 
   async function renderPage(pageIndex) {
     if (!documentInstance || !canvas || !ctx) return
-    const page = await documentInstance.getPage(pageIndex + 1) // страницы с 1
+    if (pageIndex < 0 || pageIndex >= totalPages) return
+
+    const page = await documentInstance.getPage(pageIndex + 1)
     const imageData = await page.getImageData()
+
     canvas.width = imageData.width
     canvas.height = imageData.height
     ctx.putImageData(imageData, 0, 0)
+
     currentPage = pageIndex
     savePage()
+    console.log(`📄 Rendered page ${currentPage + 1}/${totalPages}`)
   }
 
   async function loadDjvu(buffer, container) {
-    const DjVu = window.DjVu
     documentInstance = new DjVu.Document(buffer)
-    totalPages = documentInstance.pagesCount
+    totalPages = documentInstance.pages?.length || 0
+    if (totalPages === 0) {
+      console.warn('⚠️ No pages found in document.')
+      return
+    }
 
-    canvas = document.createElement('canvas')
-    canvas.style.maxWidth = '100%'
-    canvas.style.height = 'auto'
-    ctx = canvas.getContext('2d')
     container.innerHTML = ''
+    canvas = document.createElement('canvas')
+    canvas.className = 'mb-4 shadow border rounded'
+    ctx = canvas.getContext('2d')
     container.appendChild(canvas)
 
     const savedPage = loadSavedPage()
-    renderPage(savedPage)
+    await renderPage(savedPage)
   }
 
   return {
     init: async function (container, fileUrl) {
-      fileKey = btoa(fileUrl)
-      const response = await fetch(fileUrl)
-      const buffer = await response.arrayBuffer()
+      try {
+        fileKey = btoa(fileUrl)
+        const response = await fetch(fileUrl)
+        if (!response.ok) throw new Error('Failed to load file')
 
-      if (!window.DjVu || !window.DjVu.Document) {
-        console.error('DjVu.js not loaded properly')
-        return
+        const buffer = await response.arrayBuffer()
+
+        if (!window.DjVu || !window.DjVu.Document) {
+          console.error('❌ DjVu.js not loaded properly')
+          return
+        }
+
+        await loadDjvu(buffer, container)
+      } catch (err) {
+        console.error('❌ djvuReader.init failed:', err)
       }
-
-      await loadDjvu(buffer, container)
     },
 
-    nextPage: function () {
+    nextPage: () => {
       if (currentPage + 1 < totalPages) {
         renderPage(currentPage + 1)
       }
     },
 
-    prevPage: function () {
+    prevPage: () => {
       if (currentPage > 0) {
         renderPage(currentPage - 1)
       }
     },
 
-    goToPage: function (n) {
+    goToPage: (n) => {
       if (n >= 0 && n < totalPages) {
         renderPage(n)
       }
