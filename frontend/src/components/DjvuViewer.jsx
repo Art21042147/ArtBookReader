@@ -4,6 +4,7 @@ export default function DjvuViewer({ fileUrl }) {
   const containerRef = useRef(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [zoom, setZoom] = useState(1)
 
   useEffect(() => {
     const loadScriptOnce = (id, src) => {
@@ -34,10 +35,8 @@ export default function DjvuViewer({ fileUrl }) {
             setTotalPages(window.djvuReader.getTotalPages())
           }
 
-          // Инициализируем состояние сразу
           updateUI()
 
-          // Обновлять UI при каждой смене страницы
           const origNext = window.djvuReader.nextPage
           const origPrev = window.djvuReader.prevPage
           const origGoTo = window.djvuReader.goToPage
@@ -54,6 +53,9 @@ export default function DjvuViewer({ fileUrl }) {
             origGoTo(n)
             setTimeout(updateUI, 100)
           }
+
+          // Инициализация масштаба при загрузке
+          window.djvuReader.setScale(zoom)
         } else {
           console.warn('⚠️ djvuReader.init not found')
         }
@@ -65,10 +67,22 @@ export default function DjvuViewer({ fileUrl }) {
     loadDjvuScripts()
   }, [fileUrl])
 
+  const increaseZoom = () => {
+    const newZoom = Math.min(zoom + 0.1, 5)
+    setZoom(newZoom)
+    window.djvuReader?.setScale(newZoom)
+  }
+
+  const decreaseZoom = () => {
+    const newZoom = Math.max(zoom - 0.1, 0.1)
+    setZoom(newZoom)
+    window.djvuReader?.setScale(newZoom)
+  }
+
   return (
     <div className="w-full h-[90vh] overflow-auto bg-base-200 p-4 border rounded-xl shadow flex flex-col items-center gap-4">
       <div ref={containerRef} className="w-full flex justify-center" />
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-4">
         <button
           className="btn btn-sm btn-outline"
           onClick={() => window.djvuReader?.prevPage()}
@@ -83,6 +97,13 @@ export default function DjvuViewer({ fileUrl }) {
           onClick={() => window.djvuReader?.nextPage()}
         >
           Вперёд ▶️
+        </button>
+        <button className="btn btn-sm" onClick={decreaseZoom}>
+          ➖ Zoom
+        </button>
+        <span className="text-sm font-medium">{Math.round(zoom * 100)}%</span>
+        <button className="btn btn-sm" onClick={increaseZoom}>
+          ➕ Zoom
         </button>
       </div>
     </div>

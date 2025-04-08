@@ -5,6 +5,7 @@ window.djvuReader = (function () {
   let currentPage = 0
   let totalPages = 0
   let fileKey = null
+  let scale = 1.0
 
   function savePage() {
     if (fileKey) {
@@ -27,9 +28,16 @@ window.djvuReader = (function () {
     const page = await documentInstance.getPage(pageIndex + 1)
     const imageData = await page.getImageData()
 
-    canvas.width = imageData.width
-    canvas.height = imageData.height
-    ctx.putImageData(imageData, 0, 0)
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = imageData.width
+    tempCanvas.height = imageData.height
+    tempCanvas.getContext('2d').putImageData(imageData, 0, 0)
+
+    canvas.width = imageData.width * scale
+    canvas.height = imageData.height * scale
+
+    ctx.setTransform(scale, 0, 0, scale, 0, 0)
+    ctx.drawImage(tempCanvas, 0, 0)
 
     currentPage = pageIndex
     savePage()
@@ -90,6 +98,11 @@ window.djvuReader = (function () {
       if (n >= 0 && n < totalPages) {
         renderPage(n)
       }
+    },
+
+    setScale: (newScale) => {
+      scale = Math.max(0.1, Math.min(newScale, 5.0))
+      renderPage(currentPage)
     },
 
     getCurrentPage: () => currentPage,
