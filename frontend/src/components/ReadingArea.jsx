@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { renderFb2, extractNotes } from './fb2Renderer'
+import DjvuViewer from './DjvuViewer'
 import NoteModal from './NoteModal'
 
 export default function ReadingArea({ bookText, scrollRef, showPosition, pageInfo, book }) {
@@ -9,6 +10,7 @@ export default function ReadingArea({ bookText, scrollRef, showPosition, pageInf
 
   const isFb2 = book?.file?.endsWith('.fb2') || book?.title?.toLowerCase().endsWith('.fb2')
   const isPdf = book?.file?.endsWith('.pdf') || book?.title?.toLowerCase().endsWith('.pdf')
+  const isDjvu = book?.file?.endsWith('.djvu') || book?.title?.toLowerCase().endsWith('.djvu')
 
   useEffect(() => {
     if (isFb2 && bookText) {
@@ -34,7 +36,9 @@ export default function ReadingArea({ bookText, scrollRef, showPosition, pageInf
       className="flex-1 overflow-y-auto flex flex-col items-center px-8 text-lg leading-relaxed text-center py-24"
       onClick={handleClick}
     >
-      {isPdf ? (
+      {isDjvu ? (
+        <DjvuViewer fileUrl={book.file} />
+      ) : isPdf ? (
         <iframe
           src={book.file.startsWith('/') ? book.file : new URL(book.file).pathname}
           className="w-full h-[90vh] border-none rounded shadow-lg"

@@ -44,6 +44,10 @@ class BookViewSet(viewsets.ModelViewSet):
                     "chapters": [{"title": str(item.title)} for item in toc if hasattr(item, "title")]
                 }
 
+        elif ext == "djvu":
+            title = extract_title(file)
+            content = None
+
         else:
             title = extract_title(file)
 
@@ -76,7 +80,8 @@ class BookViewSet(viewsets.ModelViewSet):
                 with open(file_path, 'r', encoding='utf-8') as f:
                     content = f.read()
 
-            elif ext == "pdf":
+
+            elif ext in ["pdf", "djvu"]:
                 return Response({"text": None})
 
             else:
