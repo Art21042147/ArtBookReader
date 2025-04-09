@@ -157,6 +157,7 @@ export function useReaderLogic() {
     setBookText,
     handleFileChange,
     library,
+    setLibrary,
     openBook,
     bookmarks,
     addBookmark,

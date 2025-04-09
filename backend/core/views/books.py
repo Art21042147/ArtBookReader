@@ -1,9 +1,9 @@
 import os
 import chardet
-from rest_framework import viewsets, permissions, serializers
+from rest_framework import viewsets, permissions, serializers, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from ..models import Book
+from ..models import Book, ReadingPosition, Bookmark
 from ..serializers import BookSerializer
 from ..utils.extractors import extract_title, calculate_sha256, get_extension
 from ..utils.fb2_reader import extract_fb2_metadata
@@ -80,7 +80,6 @@ class BookViewSet(viewsets.ModelViewSet):
                 with open(file_path, 'r', encoding='utf-8') as f:
                     content = f.read()
 
-
             elif ext in ["pdf", "djvu"]:
                 return Response({"text": None})
 
@@ -91,3 +90,22 @@ class BookViewSet(viewsets.ModelViewSet):
             return Response({"error": f"Could not read file: {e}"}, status=400)
 
         return Response({"text": content})
+
+    def destroy(self, request, *args, **kwargs):
+        book = self.get_object()
+
+        # Удаление файла
+        if book.file and os.path.isfile(book.file.path):
+            try:
+                os.remove(book.file.path)
+            except Exception as e:
+                print(f"⚠️ Не удалось удалить файл: {e}")
+
+        # Удаление записей, привязанных к пользователю
+        ReadingPosition.objects.filter(book=book, user=request.user).delete()
+        Bookmark.objects.filter(book=book, user=request.user).delete()
+
+        # Удаление книги
+        book.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

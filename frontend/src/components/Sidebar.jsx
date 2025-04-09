@@ -9,6 +9,7 @@ export default function Sidebar({
   fileInputRef,
   handleFileChange,
   library,
+  setLibrary,
   setBook,
   openBook,
   addBookmark,
@@ -150,10 +151,35 @@ export default function Sidebar({
             {library.map((b) => (
               <li
                 key={b.id}
-                className="cursor-pointer hover:text-emerald-400 truncate"
-                onClick={() => openBook(b)}
+                className="flex justify-between items-center cursor-pointer group"
               >
-                📘 {b.title}
+                <span
+                  onClick={() => openBook(b)}
+                  className="hover:text-emerald-400 truncate w-full"
+                >
+                  📘 {b.title}
+                </span>
+                <span
+                  className="ml-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition"
+                  title="Delete"
+                  onClick={async (e) => {
+                    e.stopPropagation()
+                    if (confirm(`Delete "${b.title}"?`)) {
+                      try {
+                        await api.delete(`/books/${b.id}/`)
+                        // обновить список
+                        const updated = library.filter((bk) => bk.id !== b.id)
+                        setBook(null)
+                        setLibrary(updated)
+                      } catch (err) {
+                        alert('Failed to delete book')
+                        console.error(err)
+                      }
+                    }
+                  }}
+                >
+                  ❌
+                </span>
               </li>
             ))}
           </ul>
