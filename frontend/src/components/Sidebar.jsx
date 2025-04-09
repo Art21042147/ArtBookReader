@@ -22,6 +22,7 @@ export default function Sidebar({
   const [showLibrary, setShowLibrary] = useState(false)
   const [showContent, setShowContent] = useState(false)
   const [noteInput, setNoteInput] = useState('')
+  const [gotoPageInput, setGotoPageInput] = useState('')
 
   return (
     <div
@@ -41,6 +42,32 @@ export default function Sidebar({
             ✍️ {book.author}
           </p>
         )}
+      </div>
+
+      <div className="pl-4 text-sm mt-6 mb-6">
+        <p className="mb-2 text-white font-semibold">🔢 Go to Page</p>
+        <div className="flex gap-2">
+          <input
+            type="number"
+            min="1"
+            max={pageInfo.total}
+            value={gotoPageInput}
+            onChange={(e) => setGotoPageInput(e.target.value)}
+            className="w-20 px-2 py-1 rounded text-black"
+          />
+          <button
+            className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
+            onClick={() => {
+              const pageNum = parseInt(gotoPageInput)
+              if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= pageInfo.total) {
+                goToPage(pageNum)
+                setGotoPageInput('')
+              }
+            }}
+          >
+            Go
+          </button>
+        </div>
       </div>
 
       <ul className="space-y-4">
