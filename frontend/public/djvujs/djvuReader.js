@@ -27,7 +27,8 @@ window.djvuReader = (function () {
     if (pageIndex < 0 || pageIndex >= totalPages) return
   
     const page = await documentInstance.getPage(pageIndex + 1)
-    const imageData = await page.getImageData()
+    const renderScale = 0.7
+    const imageData = await page.getImageData(renderScale)
   
     // фиксируем "логическое" разрешение — 100% качество, не масштабируем вручную
     canvas.width = imageData.width
@@ -126,7 +127,7 @@ window.djvuReader = (function () {
     },
 
     setScale: (newScale) => {
-      scale = Math.max(0.1, Math.min(newScale, 5.0))
+      scale = Math.max(0.1, Math.min(newScale, 3.0))
       renderPage(currentPage)
     },
 

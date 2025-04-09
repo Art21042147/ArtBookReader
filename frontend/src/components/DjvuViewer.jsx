@@ -40,8 +40,8 @@ export default function DjvuViewer({ fileUrl, setPageInfo, initialPage = 1, book
           }
 
           // Потом устанавливаем масштаб и открываем нужную страницу
-          window.djvuReader.setScale(1.0)
-          setZoom(1)
+          window.djvuReader.setScale(0.5)
+          setZoom(0.5)
           window.djvuReader.goToPage((initialPage || 1) - 1)
         }
       } catch (err) {
@@ -61,7 +61,7 @@ export default function DjvuViewer({ fileUrl, setPageInfo, initialPage = 1, book
       if ((e.ctrlKey || e.metaKey) && containerRef.current?.contains(e.target)) {
         e.preventDefault()
         const delta = e.deltaY
-        const newZoom = Math.max(0.5, Math.min(zoom + (delta < 0 ? 0.1 : -0.1), 3))
+        const newZoom = Math.max(0.2, Math.min(zoom + (delta < 0 ? 0.1 : -0.1), 2))
         setZoom(newZoom)
         window.djvuReader?.setScale(newZoom)
       }
