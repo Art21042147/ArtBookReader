@@ -53,7 +53,7 @@ export function useReaderLogic() {
     })
   }
 
-  const addBookmark = async (note, page) => {
+  const addBookmark = async (note, page = pageInfo.current) => {
     await addBookmarkLogic(book.id, note, page, setBookmarks)
   }
 
@@ -62,7 +62,9 @@ export function useReaderLogic() {
   }
 
   const goToPage = (page) => {
-    if (scrollRef.current) {
+    if (book?.file?.endsWith('.djvu')) {
+      window.djvuReader?.goToPage((page || 1) - 1)
+    } else if (scrollRef.current) {
       scrollRef.current.scrollTop = (page - 1) * scrollRef.current.clientHeight
     }
   }
@@ -161,5 +163,6 @@ export function useReaderLogic() {
     deleteBookmark,
     goToPage,
     goToHeading,
+    setPageInfo,
   }
 }

@@ -15,15 +15,25 @@ export const openBookLogic = async ({
 }) => {
   try {
     const text = await getBookText(book.id)
-    setBook(book)
+    const position = await getReadingPosition(book.id)
+
+    const isDjvu = book.file.endsWith('.djvu')
+    const isText = book.file.endsWith('.txt') || book.file.endsWith('.fb2')
+    
+    const enrichedBook = {
+      ...book,
+      last_position: isDjvu || isText ? position?.last_position || 1 : 1,
+    }
+
+    setBook(enrichedBook)
     setBookText(text)
     setShowPosition(true)
 
     await markBookAsOpened(book.id)
     await fetchBookmarks(book.id, setBookmarks)
 
-    const position = await getReadingPosition(book.id)
-    if (position && scrollRef.current) {
+    // только для текстовых форматов — скролл
+    if (position && scrollRef.current && !book.file.endsWith('.djvu')) {
       setTimeout(() => {
         const el = scrollRef.current
         const page = position.last_position

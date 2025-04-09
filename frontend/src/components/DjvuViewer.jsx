@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { saveReadingPosition } from '../axios'
 
-export default function DjvuViewer({ fileUrl, setPageInfo }) {
+export default function DjvuViewer({ fileUrl, setPageInfo, initialPage = 1, bookId }) {
   const containerRef = useRef(null)
   const [zoom, setZoom] = useState(1)
 
-  // Загрузка библиотек и инициализация
   useEffect(() => {
     const loadScriptOnce = (id, src) => {
       if (document.getElementById(id)) return Promise.resolve()
@@ -26,9 +26,23 @@ export default function DjvuViewer({ fileUrl, setPageInfo }) {
 
         if (window.djvuReader?.init) {
           await window.djvuReader.init(containerRef.current, fileUrl)
+
+          // Сначала подключаем обработчики
           window.djvuReader.setOnPageChange(setPageInfo)
+
+          // Подключаем сохранение позиции
+          if (bookId) {
+            window.saveDjvuReadingPosition = (page) => {
+              saveReadingPosition(bookId, page).catch(err =>
+                console.error('Ошибка сохранения позиции DJVU:', err)
+              )
+            }
+          }
+
+          // Потом устанавливаем масштаб и открываем нужную страницу
           window.djvuReader.setScale(1.0)
           setZoom(1)
+          window.djvuReader.goToPage((initialPage || 1) - 1)
         }
       } catch (err) {
         console.error('❌ Failed to load djvu scripts:', err)
@@ -36,9 +50,12 @@ export default function DjvuViewer({ fileUrl, setPageInfo }) {
     }
 
     loadDjvuScripts()
-  }, [fileUrl, setPageInfo])
 
-  // Масштабирование колесом с Ctrl
+    return () => {
+      delete window.saveDjvuReadingPosition
+    }
+  }, [fileUrl, setPageInfo, initialPage, bookId])
+
   useEffect(() => {
     const handleWheel = (e) => {
       if ((e.ctrlKey || e.metaKey) && containerRef.current?.contains(e.target)) {
@@ -54,7 +71,6 @@ export default function DjvuViewer({ fileUrl, setPageInfo }) {
     return () => window.removeEventListener('wheel', handleWheel)
   }, [zoom])
 
-  // Сброс масштаба двойным кликом
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
@@ -70,7 +86,6 @@ export default function DjvuViewer({ fileUrl, setPageInfo }) {
     return () => container.removeEventListener('dblclick', handleDoubleClick)
   }, [])
 
-  // Клавиши для смены страниц
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowUp') {

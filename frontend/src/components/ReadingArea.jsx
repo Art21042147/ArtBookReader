@@ -3,11 +3,10 @@ import { renderFb2, extractNotes } from './fb2Renderer'
 import DjvuViewer from './DjvuViewer'
 import NoteModal from './NoteModal'
 
-export default function ReadingArea({ bookText, scrollRef, showPosition, book }) {
+export default function ReadingArea({ bookText, scrollRef, showPosition, book, pageInfo, setPageInfo }) {
   const [notes, setNotes] = useState({})
   const [activeNote, setActiveNote] = useState(null)
   const [noteId, setNoteId] = useState(null)
-  const [pageInfo, setPageInfo] = useState({ current: 1, total: 1, percent: 0 })
 
   const isFb2 = book?.file?.endsWith('.fb2') || book?.title?.toLowerCase().endsWith('.fb2')
   const isPdf = book?.file?.endsWith('.pdf') || book?.title?.toLowerCase().endsWith('.pdf')
@@ -38,7 +37,12 @@ export default function ReadingArea({ bookText, scrollRef, showPosition, book })
       onClick={handleClick}
     >
       {isDjvu ? (
-        <DjvuViewer fileUrl={book.file} setPageInfo={setPageInfo} />
+        <DjvuViewer
+          fileUrl={book.file}
+          bookId={book.id}
+          setPageInfo={setPageInfo}
+          initialPage={book.last_position || 1}
+        />
       ) : isPdf ? (
         <iframe
           src={book.file.startsWith('/') ? book.file : new URL(book.file).pathname}

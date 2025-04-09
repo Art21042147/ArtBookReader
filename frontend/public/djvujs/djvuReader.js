@@ -49,7 +49,12 @@ window.djvuReader = (function () {
         current: currentPage + 1,
         total: totalPages,
         percent: Math.round((currentPage + 1) / totalPages * 100),
-      })
+      });
+    
+      // Save position
+      if (window.saveDjvuReadingPosition && typeof window.saveDjvuReadingPosition === 'function') {
+        window.saveDjvuReadingPosition(currentPage + 1);
+      }
     }
   
     console.log(`📄 Rendered page ${currentPage + 1}/${totalPages} at scale ${scale}`)
