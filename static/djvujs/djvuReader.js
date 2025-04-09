@@ -74,6 +74,8 @@ window.djvuReader = (function () {
     const wrapper = document.createElement('div')
     wrapper.style.width = '100%'
     wrapper.style.overflow = 'auto'
+    wrapper.style.display = 'flex'
+    wrapper.style.justifyContent = 'center'
     
     canvas = document.createElement('canvas')
     canvas.style.display = 'block'
