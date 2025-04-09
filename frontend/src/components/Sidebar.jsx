@@ -27,7 +27,7 @@ export default function Sidebar({
 
   return (
     <div
-      className={`fixed top-0 left-0 h-full w-80 bg-indigo-950 text-white p-6 text-lg z-50 transform transition-transform duration-300 ${
+      className={`fixed top-0 left-0 h-full w-80 bg-sky-950 text-white p-6 text-lg z-50 transform transition-transform duration-300 ${
         showPanel ? 'translate-x-0' : '-translate-x-full'
       }`}
       onClick={(e) => e.stopPropagation()}
@@ -37,16 +37,16 @@ export default function Sidebar({
       </h2>
 
       <div className="mb-6">
-        <p className="mt-4 font-semibold text-lg">📖 {book?.title || 'No book'}</p>
+        <p className="mt-4 font-semibold text-lg"> {book?.title || 'No book'}</p>
         {book?.author && (
-          <p className="text-sm text-gray-400 italic mt-1">
-            ✍️ {book.author}
+          <p className="text-base text-gray-200 mt-1">
+            {book.author}
           </p>
         )}
       </div>
 
       <div className="pl-4 text-sm mt-6 mb-6">
-        <p className="mb-2 text-white font-semibold">🔢 Go to Page</p>
+        <p className="mb-4 text-white font-semibold text-base">📖 Go to Page</p>
         <div className="flex gap-2">
           <input
             type="number"
