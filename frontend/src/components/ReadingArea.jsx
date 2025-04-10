@@ -56,7 +56,14 @@ export default function ReadingArea({ bookText, scrollRef, showPosition, book, p
           <div className="max-w-4xl whitespace-pre-line text-left">{bookText}</div>
         )
       ) : (
-        <h1 className="text-8xl font-bold opacity-50">ArtBookReader</h1>
+        <div className="flex flex-col items-center opacity-50">
+          <h1 className="text-8xl font-bold">ArtBookReader</h1>
+            <img
+              src="/static/logo.svg"
+              alt="Logo"
+              className="mt-6 h-96 mx-auto invert brightness-[0.5]"
+            />
+        </div>
       )}
 
       {showPosition && !isPdf && (

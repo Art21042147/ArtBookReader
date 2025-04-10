@@ -1,6 +1,10 @@
 from PyPDF2 import PdfReader
 
+
 def extract_pdf_metadata(file):
+    """
+    Extracts metadata from an PDF file.
+    """
     try:
         reader = PdfReader(file)
         meta = reader.metadata

@@ -22,7 +22,14 @@ export default function Register() {
 
   return (
     <div className="h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 text-center">
-      <h1 className="text-8xl font-bold opacity-50 mb-12">ArtBookReader</h1>
+        <div className="flex flex-col items-center opacity-50">
+          <h1 className="text-8xl font-bold">ArtBookReader</h1>
+            <img
+              src="/static/logo.svg"
+              alt="Logo"
+              className="mt-6 h-96 mx-auto invert brightness-[0.5]"
+            />
+        </div>
       <div className="w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">➕ Add User</h2>
         {error && <p className="text-red-600 mb-2">{error}</p>}

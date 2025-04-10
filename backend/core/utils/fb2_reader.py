@@ -2,6 +2,9 @@ from lxml import etree
 
 
 def extract_fb2_metadata(file):
+    """
+    Extracts metadata from an FB2 file.
+    """
     metadata = {
         "title": None,
         "author": None,
