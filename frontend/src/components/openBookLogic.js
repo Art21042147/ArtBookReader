@@ -32,7 +32,7 @@ export const openBookLogic = async ({
     await markBookAsOpened(book.id)
     await fetchBookmarks(book.id, setBookmarks)
 
-    // только для текстовых форматов — скролл
+    // For text formats only - scroll.
     if (position && scrollRef.current && !book.file.endsWith('.djvu')) {
       setTimeout(() => {
         const el = scrollRef.current

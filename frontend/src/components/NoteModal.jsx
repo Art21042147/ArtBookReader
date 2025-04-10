@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react'
 
+// React component NoteModal that displays a modal window with a note. 
 export default function NoteModal({ noteText, noteId, onClose }) {
   const modalRef = useRef(null)
 
+  // Close the modal hook.
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === 'Escape') onClose()

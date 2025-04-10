@@ -1,3 +1,4 @@
+// Module that provides functionality for rendering and navigating through pages of a DjVu document using the DjVu.js library.
 window.djvuReader = (function () {
   let documentInstance = null
   let canvas = null
@@ -30,15 +31,13 @@ window.djvuReader = (function () {
     const renderScale = 0.7
     const imageData = await page.getImageData(renderScale)
   
-    // фиксируем "логическое" разрешение — 100% качество, не масштабируем вручную
     canvas.width = imageData.width
     canvas.height = imageData.height
   
-    ctx.setTransform(1, 0, 0, 1, 0, 0) // сброс трансформаций
+    ctx.setTransform(1, 0, 0, 1, 0, 0) 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.putImageData(imageData, 0, 0)
   
-    // применяем масштаб через CSS
     canvas.style.transform = `scale(${scale})`
     canvas.style.transformOrigin = 'top center'
   
@@ -52,7 +51,6 @@ window.djvuReader = (function () {
         percent: Math.round((currentPage + 1) / totalPages * 100),
       });
     
-      // Save position
       if (window.saveDjvuReadingPosition && typeof window.saveDjvuReadingPosition === 'function') {
         window.saveDjvuReadingPosition(currentPage + 1);
       }

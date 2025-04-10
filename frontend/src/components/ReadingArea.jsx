@@ -3,6 +3,7 @@ import { renderFb2, extractNotes } from './fb2Renderer'
 import DjvuViewer from './DjvuViewer'
 import NoteModal from './NoteModal'
 
+// React component ReadingArea that renders a reading area for a book.
 export default function ReadingArea({ bookText, scrollRef, showPosition, book, pageInfo, setPageInfo }) {
   const [notes, setNotes] = useState({})
   const [activeNote, setActiveNote] = useState(null)
@@ -12,6 +13,7 @@ export default function ReadingArea({ bookText, scrollRef, showPosition, book, p
   const isPdf = book?.file?.endsWith('.pdf') || book?.title?.toLowerCase().endsWith('.pdf')
   const isDjvu = book?.file?.endsWith('.djvu') || book?.title?.toLowerCase().endsWith('.djvu')
 
+  // Extract notes from the book text if the book is a FB2 file.
   useEffect(() => {
     if (isFb2 && bookText) {
       const parsedNotes = extractNotes(bookText)

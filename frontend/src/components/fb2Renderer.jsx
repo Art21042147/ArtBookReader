@@ -4,7 +4,7 @@ import React from 'react'
  * Main book body renderer fb2
  */
 export function renderFb2(xmlString) {
-  if (!xmlString) return <p>🛑 Пустой fb2-файл</p>
+  if (!xmlString) return <p>🛑 Empty fb2</p>
 
   try {
     const parser = new DOMParser()

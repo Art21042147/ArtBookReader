@@ -6,10 +6,12 @@ from .fb2_reader import extract_fb2_metadata
 from .pdf_reader import extract_pdf_metadata
 
 
+# Return string is the file extension in a standardized format.
 def get_extension(file_name):
     return Path(file_name).suffix.lower().lstrip('.')
 
 
+# Calculates SHA256 checksum of a file for check the originality.
 def calculate_sha256(file_obj):
     hasher = hashlib.sha256()
     for chunk in file_obj.chunks():
@@ -18,6 +20,10 @@ def calculate_sha256(file_obj):
 
 
 def extract_title(file):
+    """
+    Extracts the title from a file based on its extension 
+    and returns the title if available, otherwise it returns the filename.
+    """
     filename = Path(file.name).stem
     ext = get_extension(file.name)
 

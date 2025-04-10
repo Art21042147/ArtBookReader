@@ -167,7 +167,6 @@ export default function Sidebar({
                     if (confirm(`Delete "${b.title}"?`)) {
                       try {
                         await api.delete(`/books/${b.id}/`)
-                        // обновить список
                         const updated = library.filter((bk) => bk.id !== b.id)
                         setBook(null)
                         setLibrary(updated)

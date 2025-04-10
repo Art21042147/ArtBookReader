@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
@@ -7,13 +7,19 @@ from ..serializers import ReadingPositionSerializer, BookmarkSerializer, BookSer
 
 
 class ReadingPositionViewSet(viewsets.ModelViewSet):
+    """
+    The ReadingPositionViewSet class provides CRUD operations for the ReadingPosition model
+    """
+
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ReadingPositionSerializer
 
     def get_queryset(self):
         return ReadingPosition.objects.filter(user=self.request.user)
 
+    # Create a reading position for a user.
     def create(self, request, *args, **kwargs):
+
         user = request.user
         book_id = request.data.get("book")
         last_position = request.data.get("last_position")
@@ -28,6 +34,7 @@ class ReadingPositionViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(obj)
         return Response(serializer.data)
 
+    # Retrieve a specific reading position.
     @action(detail=True, methods=["get"], url_path="book")
     def for_book(self, request, pk=None):
         try:
@@ -37,6 +44,7 @@ class ReadingPositionViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(position)
         return Response(serializer.data)
 
+    # Retrieve the last opened book for a user.
     @action(detail=False, methods=["get"], url_path="last")
     def last_opened(self, request):
         position = (
@@ -49,6 +57,7 @@ class ReadingPositionViewSet(viewsets.ModelViewSet):
             return Response({"detail": "No books opened yet."}, status=404)
         return Response(BookSerializer(position.book).data)
 
+    # Mark a book as opened by a user.
     @action(detail=True, methods=["post"], url_path="mark-opened")
     def mark_opened(self, request, pk=None):
         obj, _ = ReadingPosition.objects.update_or_create(
@@ -60,6 +69,9 @@ class ReadingPositionViewSet(viewsets.ModelViewSet):
 
 
 class BookmarkViewSet(viewsets.ModelViewSet):
+    """
+    The BookmarkViewSet class provides CRUD operations for the Bookmark model.
+    """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = BookmarkSerializer
 
