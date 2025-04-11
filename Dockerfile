@@ -22,8 +22,5 @@ COPY manage.py ./
 COPY templates/ ./templates/
 COPY static/ ./static/
 
-# Mount media
-VOLUME /app/media
-
 # Start
 CMD ["gunicorn", "backend.wsgi", "--bind", "0.0.0.0:8000"]
