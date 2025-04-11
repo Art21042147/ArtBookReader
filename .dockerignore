@@ -1,0 +1,43 @@
+# 🐍 Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+.env
+.env.*
+
+# 🔥 Venv
+.venv/
+venv/
+ENV/
+
+# 🧱 Django media
+/media/
+media/
+
+# 📦 Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# ⚙️ Build artifacts
+*.log
+*.lock
+*.bak
+*.swp
+*.tmp
+.DS_Store
+
+# 🔧 IDE
+.vscode/
+.idea/
+*.iml
+
+# 📁 Git
+.git/
+.gitignore
+
+# 📄 OS junk
+Thumbs.db
+ehthumbs.db

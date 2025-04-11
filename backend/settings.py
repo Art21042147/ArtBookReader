@@ -16,7 +16,7 @@ if not SECRET_KEY:
 
 DEBUG = os.getenv("DEBUG") == 'True'
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 
 # Application definition
 INSTALLED_APPS = [

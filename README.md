@@ -28,11 +28,53 @@
 
 > This project is fully containerized using **Docker** and **docker-compose**.
 
-### 1. Clone the repository
+### Clone the repository
 
 ```bash
 git clone https://github.com/Art21042147/ArtBookReader
 cd artbookreader
+```
+### 🐳 Docker (All-in-One)
+
+This project is production-ready and packaged as a **single Docker container** that includes:
+
+- Django backend
+- Prebuilt React frontend (Vite)
+- PostgreSQL connection support
+- Static and media file handling
+
+### 📄 Environment Variables
+
+Create a `.env` file in the root directory based on `.env.example`:
+
+```env
+DEBUG=1
+DJANGO_SECRET_KEY=your-secret-key
+POSTGRES_DB=db_name
+POSTGRES_USER=db_user_name
+POSTGRES_PASSWORD=db_user_password
+DATABASE_URL=postgres://db_user_name:db_user_password@db:5432/db_name
+```
+### 🔧 Build and run locally
+
+The application will be available at:
+```bash
+http://localhost:8000
+```
+
+Make sure you have Docker and Docker Compose installed. Then run:
+```bash
+docker-compose up --build
+```
+
+### ⚙️ Commands
+Create a Django superuser inside the running container:
+```bash
+docker-compose exec web python manage.py createsuperuser
+```
+Apply migrations manually (optional):
+```commandline
+docker-compose exec web python manage.py migrate
 ```
 
 ## Project Structure
