@@ -39,6 +39,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'backend.core.middleware.AllowPDFInFrameMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 # URL configuration
