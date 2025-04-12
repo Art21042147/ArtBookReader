@@ -23,4 +23,4 @@ COPY templates/ ./templates/
 COPY --from=frontend /app/static ./static
 
 # Start
-CMD ["gunicorn", "backend.wsgi", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn backend.wsgi:application --bind 0.0.0.0:8000"]
