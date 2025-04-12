@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir --upgrade pip && pip install -r requirements.txt
 COPY backend/ ./backend/
 COPY manage.py ./
 COPY templates/ ./templates/
-COPY --from=frontend /app/static ./static
+COPY --from=frontend /app/staticfiles ./staticfiles
 
 # Start
-CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn backend.wsgi:application --bind 0.0.0.0:8000"]
+CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000"]
