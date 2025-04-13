@@ -10,7 +10,8 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY", "").strip()
+
 if not SECRET_KEY:
     raise ValueError("SECRET_KEY is not set in environment variables.")
 
@@ -65,7 +66,7 @@ TEMPLATES = [
 # Database configuration
 DATABASE_URL = os.getenv('DEV_DATABASE_URL') if DEBUG else os.getenv('PROD_DATABASE_URL')
 DATABASES = {
-    'default': dj_database_url.config(default=DATABASE_URL)
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
 # Password validation
