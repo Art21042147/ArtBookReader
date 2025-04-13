@@ -23,4 +23,4 @@ COPY templates/ ./templates/
 COPY --from=frontend /app/staticfiles ./staticfiles
 
 # Start
-CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate && gunicorn backend.wsgi:application --bind 0.0.0.0:8000"]
