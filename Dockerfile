@@ -24,8 +24,3 @@ COPY --from=frontend /app/staticfiles ./staticfiles
 
 # Start
 CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000"]
-
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
-CMD ["/app/entrypoint.sh"]
