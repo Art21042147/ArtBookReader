@@ -12,4 +12,9 @@ export default defineConfig({
       input: resolve(__dirname, 'index.html'),
     },
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.js',
+  },
 })
