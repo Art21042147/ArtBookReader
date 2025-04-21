@@ -1,4 +1,3 @@
-# backend/tests/test_middleware.py
 from django.test import RequestFactory
 from backend.core.middleware import AllowPDFInFrameMiddleware
 from django.http import HttpResponse
