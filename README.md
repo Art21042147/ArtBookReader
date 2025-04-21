@@ -106,6 +106,15 @@ Left click on the space will show a sidebar with an intuitive user interface. He
 
 ---
 
+## ✅ Tests
+
+This project includes full **test coverage for both the frontend and backend**.
+
+- **Backend tests** are written using `pytest` and `pytest-django`, covering API endpoints, serializers, and middleware.
+- **Frontend tests** are implemented with [`vi.mock`](https://vitest.dev/api/mock/) and run using **Vitest**, testing UI logic, state handling, and API integration.
+
+All tests are located in the `test` branch and can be run locally or in CI environments.
+
 ## Authors
 
 * **Arthur Ilin** - *Core development and implementation* - [Art21042147](https://github.com/Art21042147)
