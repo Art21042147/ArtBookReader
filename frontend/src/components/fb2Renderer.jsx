@@ -16,6 +16,9 @@ export function renderFb2(xmlString) {
       .replace(/\s+l:/g, ' ')
 
     const doc = parser.parseFromString(cleanedXml, 'application/xml')
+    if (doc.getElementsByTagName('parsererror').length > 0) {
+      throw new Error('Invalid FB2 XML')
+    }
     const mainBody = [...doc.getElementsByTagName('body')].find(
       b => !b.getAttribute('name') || b.getAttribute('name') === 'main'
     )
