@@ -109,6 +109,7 @@ export default function DjvuViewer({ fileUrl, setPageInfo, initialPage = 1, book
   return (
     <div
       ref={containerRef}
+      data-testid="djvu-container"
       className="w-full h-[90vh] overflow-auto bg-base-200 p-4 border rounded-xl shadow flex justify-center"
     />
   )
